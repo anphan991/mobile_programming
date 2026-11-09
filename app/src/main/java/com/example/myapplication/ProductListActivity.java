@@ -15,7 +15,7 @@ public class ProductListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
-        // 1. Tạo mảng dữ liệu sản phẩm mẫu (DataSource)
+        // tạo danh sách sản phẩm
         String[] items = {
                 "iPhone 16 Pro Max - 34.990.000đ",
                 "Samsung Galaxy S24 Ultra - 28.990.000đ",
@@ -33,34 +33,40 @@ public class ProductListActivity extends AppCompatActivity {
                 "Tai nghe AirPods Pro 2 - 5.690.000đ",
                 "Tai nghe Sony WH-1000XM5 - 7.490.000đ",
                 "Apple Watch Series 10 - 10.990.000đ",
-                "Bàn phím cơ Keychron - 2.490.000đ",
-
+                "Bàn phím cơ Keychron - 2.490.000đ"
         };
 
-        // 2. Ánh xạ ListView từ file XML theo ID
-        ListView listView = findViewById(R.id.listView);
-        Button btnLogout = findViewById(R.id.btnLogout);
+        //  ánh xạ View (nối biến Java với các thẻ trong file XML)
+        ListView listView = findViewById(R.id.listView); //  danh sách  rỗng
+        Button btnLogout = findViewById(R.id.btnLogout); // nút Đăng xuất
 
-        // 3. Tạo ArrayAdapter để kết nối mảng dữ liệu (items) với giao diện có sẵn (simple_list_item_1)
+        // ArrayAdapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_list_item_1,
-                items
+                this,                                // màn hình hiện tại ProductListActivity
+                android.R.layout.simple_list_item_1, // Layout 1
+                items                                // mảng đưa vào để hiển thị
         );
 
-        // 4. Gán Adapter vào ListView để hiển thị lên màn hình
+        // đổ dữ liệu vào list
+        // ListView lấy dữ liệu từ Adapter và trình bày
         listView.setAdapter(adapter);
 
-        // 5. Sự kiện khi bấm vào 1 dòng trong danh sách
+        // sự kiện bấm vào 1 dòng của list
+        // position = vị trí trong list (0, 1, 2, 3...)
         listView.setOnItemClickListener((parent, view, position, id) -> {
+            // Lấy ra tên sản phẩm tại position được chạm vào
             String selectedItem = items[position];
+
+            // Hiển thị thông báo
             Toast.makeText(this, "Bạn đã chọn: " + selectedItem, Toast.LENGTH_SHORT).show();
         });
 
-        // 6. Sự kiện nút Đăng xuất quay về màn hình Login
+        // nút "ĐĂNG XUẤT"
         btnLogout.setOnClickListener(v -> {
+            // Intent quay lại LoginActivity
             Intent intent = new Intent(ProductListActivity.this, LoginActivity.class);
-            startActivity(intent);
+            startActivity(intent); // Mở lại LoginActivity
+
             finish();
         });
     }
