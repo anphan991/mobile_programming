@@ -12,10 +12,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText edtRegUser, edtRegPass, edtRegConfirmPass; // Tên đăng nhập, Mật khẩu, Xác nhận mật khẩu
-    private ImageView btnToggleRegPass, btnToggleRegConfirmPass; // icon ẩn/hiện
-    private Button btnRegister; //  đăng ký
-    private TextView tvBackToLogin; // "Đã có tài khoản? Quay lại Đăng nhập"
+    private EditText edtRegUser, edtRegPass, edtRegConfirmPass;
+    private ImageView btnToggleRegPass, btnToggleRegConfirmPass;
+    private Button btnRegister;
+    private TextView tvBackToLogin;
     private boolean isPassVisible = false;
     private boolean isConfirmVisible = false;
 
@@ -26,15 +26,15 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         // ánh xạ View
-        edtRegUser = findViewById(R.id.edtRegUser); // nối với ô nhập tài khoản mới
-        edtRegPass = findViewById(R.id.edtRegPass); // nối với ô nhập mật khẩu mới
-        edtRegConfirmPass = findViewById(R.id.edtRegConfirmPass); // nối với ô nhập lại mật khẩu
-        btnToggleRegPass = findViewById(R.id.btnToggleRegPass); // nối với icon ẩn/hiện ô mật khẩu chính
-        btnToggleRegConfirmPass = findViewById(R.id.btnToggleRegConfirmPass); // Nối với icon ẩn/hiện ô xác nhận
-        btnRegister = findViewById(R.id.btnRegister); // Nối với nút bấm Đăng ký
-        tvBackToLogin = findViewById(R.id.tvBackToLogin); // Nối với dòng Quay lại Đăng nhập
+        edtRegUser = findViewById(R.id.edtRegUser);
+        edtRegPass = findViewById(R.id.edtRegPass);
+        edtRegConfirmPass = findViewById(R.id.edtRegConfirmPass);
+        btnToggleRegPass = findViewById(R.id.btnToggleRegPass);
+        btnToggleRegConfirmPass = findViewById(R.id.btnToggleRegConfirmPass);
+        btnRegister = findViewById(R.id.btnRegister);
+        tvBackToLogin = findViewById(R.id.tvBackToLogin);
 
-        // sự kiện ẩn/hiện mật khẩu chính
+        // ẩn/hiện mật khẩu chính
         btnToggleRegPass.setOnClickListener(v -> {
             if (isPassVisible) {
                 edtRegPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -48,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
             edtRegPass.setSelection(edtRegPass.getText().length());
         });
 
-        // sự kiện ẩn/hiện ô xác nhận mật khẩu
+        //  ẩn/hiện ô xác nhận mật khẩu
         btnToggleRegConfirmPass.setOnClickListener(v -> {
             if (isConfirmVisible) {
                 edtRegConfirmPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -62,12 +62,12 @@ public class RegisterActivity extends AppCompatActivity {
             edtRegConfirmPass.setSelection(edtRegConfirmPass.getText().length());
         });
 
-        // sự kiện "Đã có tài khoản? Quay lại Đăng nhập"
+        // sự kiện Quay lại Đăng nhập
         tvBackToLogin.setOnClickListener(v -> {
             finish(); // đóng màn hình Đăng ký  đưa người dùng về màn hình Đăng nhập nằm bên dưới
         });
 
-        //sự kiện bấm "ĐĂNG KÝ"
+        //sự kiện ĐĂNG KÝ
         btnRegister.setOnClickListener(v -> {
             // input và .trim() để cắt khoảng trắng thừa  2 đầu
             String user = edtRegUser.getText().toString().trim();
@@ -83,20 +83,19 @@ public class RegisterActivity extends AppCompatActivity {
             // xác nhận trùng với mật khẩu
             if (!pass.equals(confirmPass)) {
                 Toast.makeText(this, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show();
-                return; // Dừng hàm
+                return;
             }
 
-            // lưu thông tin vào SharedPreferences
+            // lưu vào SharedPreferences
             SharedPreferences pref = getSharedPreferences("UserAccount", MODE_PRIVATE);
 
             // Tạo đối tượng Editor để chỉnh sửa / ghi dữ liệu vào file
             SharedPreferences.Editor editor = pref.edit();
 
-            // lưu Key - Value
+            // lưu key-value
             editor.putString("username", user); // Khóa "username" giữ tên đăng nhập mới
             editor.putString("password", pass); // Khóa "password" giữ mật khẩu mới
 
-            // Xác nhận lưu toàn bộ thay đổi xuống bộ nhớ điện thoại
             editor.apply();
 
             Toast.makeText(this, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
