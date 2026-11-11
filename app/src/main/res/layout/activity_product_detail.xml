@@ -12,7 +12,7 @@
     android:paddingTop="12dp"
     android:paddingEnd="20dp"
     android:paddingBottom="14dp"
-    tools:ignore="HardcodedText,TextContrastCheck">
+    tools:ignore="HardcodedText,TextContrastCheck,TouchTargetSizeCheck">
 
     <!-- Thanh Header trên cùng -->
     <LinearLayout
@@ -100,45 +100,37 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Khu vực hiển thị hình ảnh sản phẩm -->
-                <LinearLayout
+                <!-- Khu vực hiển thị hình ảnh sản phẩm hero -->
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_product_icon"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:id="@+id/tvDetailStockBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end|center_vertical"
-                            android:background="@drawable/bg_badge_success"
-                            android:paddingStart="10dp"
-                            android:paddingTop="4dp"
-                            android:paddingEnd="10dp"
-                            android:paddingBottom="4dp"
-                            android:text="Còn hàng"
-                            android:textColor="@color/success"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
+                    android:layout_height="230dp"
+                    android:background="@drawable/bg_product_hero_frame">
 
                     <ImageView
                         android:id="@+id/imgDetailProduct"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
                         android:contentDescription="Ảnh sản phẩm"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/ic_phone" />
-                </LinearLayout>
+                        android:padding="18dp"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:id="@+id/tvDetailStockBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="14dp"
+                        android:background="@drawable/bg_badge_success"
+                        android:paddingStart="10dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="4dp"
+                        android:text="Còn hàng"
+                        android:textColor="@color/success"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </FrameLayout>
 
                 <!-- Tên sản phẩm và tóm tắt -->
                 <TextView
@@ -289,26 +281,26 @@
         android:background="@drawable/bg_bottom_bar"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="5dp">
+        android:padding="6dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDetailPrev"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:minWidth="44dp"
-            android:minHeight="44dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:text="Trước"
             android:textAllCaps="false"
             android:textColor="@color/ink"
             android:textSize="13sp"
             android:textStyle="bold"
             app:backgroundTint="@color/surface_subtle"
-            app:cornerRadius="22dp"
+            app:cornerRadius="24dp"
             app:icon="@drawable/ic_arrow_left_24"
             app:iconGravity="textStart"
             app:iconPadding="5dp"
@@ -320,7 +312,7 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_weight="0.75"
             android:gravity="center"
             android:orientation="vertical">
@@ -348,21 +340,21 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDetailNext"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:minWidth="44dp"
-            android:minHeight="44dp"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:text="Tiếp"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="13sp"
             android:textStyle="bold"
             app:backgroundTint="@color/primary"
-            app:cornerRadius="22dp"
+            app:cornerRadius="24dp"
             app:icon="@drawable/ic_arrow_right_24"
             app:iconGravity="textEnd"
             app:iconPadding="5dp"

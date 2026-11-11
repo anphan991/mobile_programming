@@ -44,7 +44,6 @@ public class ProductListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
-        // Xử lý WindowInsets để tránh bị thanh trạng thái (status bar / camera cutout) đè lên nút bấm
         View rootView = findViewById(R.id.rootProductList);
         final int basePaddingLeft = rootView.getPaddingLeft();
         final int basePaddingTop = rootView.getPaddingTop();
@@ -63,7 +62,7 @@ public class ProductListActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Khởi tạo danh sách dữ liệu sản phẩm
+        // Khởi tạo danh sách sản phẩm
         initProductData();
 
         // Ánh xạ View
@@ -197,7 +196,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "iPhone 16 Pro Max",
                 "256GB · Titan Tự Nhiên · Chip A18 Pro",
                 "34.990.000đ",
-                R.drawable.ic_phone,
+                R.drawable.img_iphone_16,
                 "Điện thoại",
                 "TZ-IP16PM-256",
                 "12 tháng Apple VN",
@@ -210,7 +209,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Samsung Galaxy S24 Ultra",
                 "512GB · Xám Titan · Tích hợp S-Pen",
                 "28.990.000đ",
-                R.drawable.ic_phone,
+                R.drawable.img_samsung_s24,
                 "Điện thoại",
                 "TZ-S24U-512",
                 "12 tháng chính hãng",
@@ -223,7 +222,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "MacBook Air M3 13 inch",
                 "RAM 16GB · SSD 512GB · Vỏ nhôm nguyên khối",
                 "27.990.000đ",
-                R.drawable.ic_laptop,
+                R.drawable.img_macbook_m3,
                 "Máy tính xách tay",
                 "TZ-MBA-M3-16",
                 "12 tháng Apple VN",
@@ -236,7 +235,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "iPad Pro M4 11 inch",
                 "256GB Wi-Fi · Màn hình Ultra Retina XDR",
                 "26.490.000đ",
-                R.drawable.ic_tablet,
+                R.drawable.img_ipad_pro_m4,
                 "Máy tính bảng",
                 "TZ-IPADP-M4",
                 "12 tháng Apple VN",
@@ -250,7 +249,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Tai nghe AirPods Pro 2",
                 "Hộp sạc MagSafe USB-C · Chống ồn chủ động",
                 "5.690.000đ",
-                R.drawable.ic_headphone,
+                R.drawable.img_airpods_pro,
                 "Thiết bị âm thanh",
                 "TZ-APP2-USBC",
                 "12 tháng chính hãng",
@@ -264,7 +263,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Tai nghe Sony WH-1000XM5",
                 "Chống ồn đa micro · Pin 30 giờ · Hi-Res Audio",
                 "7.490.000đ",
-                R.drawable.ic_headphone,
+                R.drawable.img_sony_wh1000xm5,
                 "Thiết bị âm thanh",
                 "TZ-SN-XM5",
                 "12 tháng Sony VN",
@@ -278,7 +277,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Apple Watch Series 10",
                 "Viền Nhôm GPS 42mm · Màn hình OLED góc rộng",
                 "10.990.000đ",
-                R.drawable.ic_watch,
+                R.drawable.img_apple_watch_series10,
                 "Đồng hồ thông minh",
                 "TZ-AWS10-42",
                 "12 tháng Apple VN",
@@ -292,7 +291,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Bàn phím cơ Keychron K8 Pro",
                 "Khung nhôm CNC · Hotswap · Bluetooth 5.1",
                 "2.490.000đ",
-                R.drawable.ic_keyboard,
+                R.drawable.img_keychron,
                 "Phụ kiện",
                 "TZ-KC-K8PRO",
                 "12 tháng chính hãng",
@@ -306,7 +305,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Chuột Logitech MX Master 3S",
                 "Cảm biến Darkfield 8000 DPI · Click siêu êm",
                 "2.190.000đ",
-                R.drawable.ic_keyboard,
+                R.drawable.img_logitech_mx,
                 "Phụ kiện",
                 "TZ-LG-MX3S",
                 "24 tháng chính hãng",
@@ -321,7 +320,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Loa Marshall Emberton II",
                 "Âm thanh đa hướng 360 độ · Pin hơn 30 giờ",
                 "3.990.000đ",
-                R.drawable.ic_headphone,
+                R.drawable.img_marshall_emberton,
                 "Thiết bị âm thanh",
                 "TZ-MS-EMB2",
                 "12 tháng chính hãng",
@@ -335,7 +334,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Tai nghe Marshall Major IV",
                 "Pin kỷ lục 80 giờ · Sạc không dây tiện lợi",
                 "3.190.000đ",
-                R.drawable.ic_headphone,
+                R.drawable.img_marshall_major,
                 "Thiết bị âm thanh",
                 "TZ-MS-MJ4",
                 "12 tháng chính hãng",
@@ -349,7 +348,7 @@ public class ProductListActivity extends AppCompatActivity {
                 "Loa JBL Charge 5",
                 "Âm trầm Original Pro Sound · Kháng nước IP67",
                 "3.490.000đ",
-                R.drawable.ic_headphone,
+                R.drawable.img_jbl_charge5,
                 "Thiết bị âm thanh",
                 "TZ-JBL-CHG5",
                 "12 tháng chính hãng",

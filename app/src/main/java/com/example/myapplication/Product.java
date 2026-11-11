@@ -7,17 +7,17 @@ public class Product {
     private String price;
     private int imageResId;
     private String category;
-    private String sku;
-    private String warranty;
+    private String sku; //mã sp
+    private String warranty; //bảo hành
     private String detailedSpecs;
     private boolean inStock;
 
-    // Constructor cơ bản
+    // Constructor
     public Product(String name, String description, String price, int imageResId) {
         this(name, description, price, imageResId, "Thiết bị công nghệ", "TZ-STD", "12 tháng chính hãng", description, true);
     }
 
-    // Constructor đầy đủ thông tin (mặc định còn hàng)
+    // Constructor đầy đủ thông tin mặc định còn hàng
     public Product(String name, String description, String price, int imageResId,
                    String category, String sku, String warranty, String detailedSpecs) {
         this(name, description, price, imageResId, category, sku, warranty, detailedSpecs, true);

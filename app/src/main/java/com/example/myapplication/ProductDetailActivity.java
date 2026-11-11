@@ -27,7 +27,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
 
-        // Xử lý WindowInsets để tránh thanh trạng thái (status bar / camera cutout) che khuất nút
         View rootView = findViewById(R.id.rootProductDetail);
         final int basePaddingLeft = rootView.getPaddingLeft();
         final int basePaddingTop = rootView.getPaddingTop();
@@ -72,7 +71,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Nút quay lại danh sách
         btnBackToList.setOnClickListener(v -> finish());
 
-        // Nút Trước ở bottom xem sản phẩm liền trước
+        // Nút  xem sản phẩm liền trước
         btnDetailPrev.setOnClickListener(v -> {
             if (currentIndex > 0) {
                 currentIndex--;
@@ -82,7 +81,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
-        // Nút Tiếp ở bottom xem sản phẩm tiếp theo
+        // Nút xem sản phẩm tiếp theo
         btnDetailNext.setOnClickListener(v -> {
             if (currentIndex < ProductListActivity.productList.size() - 1) {
                 currentIndex++;
