@@ -33,13 +33,21 @@ public class ProductAdapter extends ArrayAdapter<Product> {
 
         // ánh xạ các view trong item_product.xml
         ImageView imgProduct = convertView.findViewById(R.id.imgProduct);
+        TextView tvCategory = convertView.findViewById(R.id.tvProductCategory);
         TextView tvName = convertView.findViewById(R.id.tvProductName);
         TextView tvDesc = convertView.findViewById(R.id.tvProductDesc);
         TextView tvPrice = convertView.findViewById(R.id.tvProductPrice);
+        TextView tvOutOfStock = convertView.findViewById(R.id.tvItemOutOfStockBadge);
 
         // gán dữ liệu vào từng ô
         if (currentProduct != null) {
             imgProduct.setImageResource(currentProduct.getImageResId());
+            if (tvCategory != null) {
+                tvCategory.setText(currentProduct.getCategory());
+            }
+            if (tvOutOfStock != null) {
+                tvOutOfStock.setVisibility(currentProduct.isInStock() ? View.GONE : View.VISIBLE);
+            }
             tvName.setText(currentProduct.getName());
             tvDesc.setText(currentProduct.getDescription());
             tvPrice.setText(currentProduct.getPrice());

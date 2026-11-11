@@ -4,12 +4,16 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText edtRegUser, edtRegPass, edtRegConfirmPass;
@@ -25,6 +29,22 @@ public class RegisterActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_register);
 
+        // Xử lý WindowInsets tránh chồng lấp thanh trạng thái
+        View rootView = findViewById(R.id.rootRegister);
+        if (rootView != null) {
+            final int baseLeft = rootView.getPaddingLeft();
+            final int baseTop = rootView.getPaddingTop();
+            final int baseRight = rootView.getPaddingRight();
+            final int baseBottom = rootView.getPaddingBottom();
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+                Insets bars = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                );
+                v.setPadding(baseLeft + bars.left, baseTop + bars.top, baseRight + bars.right, baseBottom + bars.bottom);
+                return insets;
+            });
+        }
+
         // ánh xạ View
         edtRegUser = findViewById(R.id.edtRegUser);
         edtRegPass = findViewById(R.id.edtRegPass);
@@ -38,7 +58,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnToggleRegPass.setOnClickListener(v -> {
             if (isPassVisible) {
                 edtRegPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                btnToggleRegPass.setAlpha(0.4f);
+                btnToggleRegPass.setAlpha(0.45f);
                 isPassVisible = false;
             } else {
                 edtRegPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
@@ -48,11 +68,11 @@ public class RegisterActivity extends AppCompatActivity {
             edtRegPass.setSelection(edtRegPass.getText().length());
         });
 
-        //  ẩn/hiện ô xác nhận mật khẩu
+        // ẩn/hiện ô xác nhận mật khẩu
         btnToggleRegConfirmPass.setOnClickListener(v -> {
             if (isConfirmVisible) {
                 edtRegConfirmPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                btnToggleRegConfirmPass.setAlpha(0.4f);
+                btnToggleRegConfirmPass.setAlpha(0.45f);
                 isConfirmVisible = false;
             } else {
                 edtRegConfirmPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
@@ -64,17 +84,17 @@ public class RegisterActivity extends AppCompatActivity {
 
         // sự kiện Quay lại Đăng nhập
         tvBackToLogin.setOnClickListener(v -> {
-            finish(); // đóng màn hình Đăng ký  đưa người dùng về màn hình Đăng nhập nằm bên dưới
+            finish(); // đóng màn hình Đăng ký đưa người dùng về màn hình Đăng nhập nằm bên dưới
         });
 
-        //sự kiện ĐĂNG KÝ
+        // sự kiện ĐĂNG KÝ
         btnRegister.setOnClickListener(v -> {
-            // input và .trim() để cắt khoảng trắng thừa  2 đầu
+            // input và .trim() để cắt khoảng trắng thừa 2 đầu
             String user = edtRegUser.getText().toString().trim();
             String pass = edtRegPass.getText().toString().trim();
             String confirmPass = edtRegConfirmPass.getText().toString().trim();
 
-            //  1 trong 3 ô trống
+            // 1 trong 3 ô trống
             if (user.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
                 Toast.makeText(this, "Vui lòng điền đầy đủ các ô!", Toast.LENGTH_SHORT).show();
                 return; // Dừng hàm
