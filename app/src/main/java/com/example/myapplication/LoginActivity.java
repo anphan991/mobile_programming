@@ -28,6 +28,20 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Khởi tạo sẵn SQLite Database để Database Inspector nhận diện
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper.getReadableDatabase();
+
+        // Kiểm tra phiên đăng nhập đã tồn tại trong SharedPreferences chưa (auto login)
+        SharedPreferences sessionPref = getSharedPreferences("UserSession", MODE_PRIVATE);
+        String activeUser = sessionPref.getString("CURRENT_USER", null);
+        if (activeUser != null && !activeUser.trim().isEmpty()) {
+            Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         // Xử lý WindowInsets tránh chồng lấp thanh trạng thái
@@ -87,17 +101,24 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // SharedPreferences
-            SharedPreferences pref = getSharedPreferences("UserAccount", MODE_PRIVATE);
-            String savedUser = pref.getString("username", "");
-            String savedPass = pref.getString("password", "");
-            // admin / 123456
-            if ((!savedUser.isEmpty() && inputUser.equals(savedUser) && inputPass.equals(savedPass))
-                    || (inputUser.equals("admin") && inputPass.equals("123456"))) {
+            // Xác thực thông tin đăng nhập từ SQLite Database
+            boolean isValidUser = dbHelper.checkLogin(inputUser, inputPass);
 
+            // admin / 123456
+            if (!isValidUser && inputUser.equals("admin") && inputPass.equals("123456")) {
+                isValidUser = true;
+            }
+
+            if (isValidUser) {
                 Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
-                // Intent chuyển sang ProductListActivity
+                // Lưu phiên người dùng hiện tại vào SharedPreferences (UserSession)
+                sessionPref.edit().putString("CURRENT_USER", inputUser).apply();
+
+                // Đồng bộ giỏ hàng tương ứng với tài khoản vừa đăng nhập
+                CartManager.syncForCurrentUser(this);
+
+                // Chuyển sang ProductListActivity
                 Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
                 intent.putExtra(ProductListActivity.KEY_USER, inputUser);
                 startActivity(intent);

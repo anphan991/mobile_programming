@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,8 +19,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private ImageView imgDetailProduct;
     private TextView tvDetailName, tvDetailPrice, tvDetailDesc, tvDetailPosition;
-    private TextView tvDetailStockBadge, tvDetailSku, tvDetailWarranty, tvDetailSpecs, tvDetailSubtitle;
-    private Button btnBackToList, btnDetailPrev, btnDetailNext;
+    private TextView tvDetailStockBadge, tvDetailSku, tvDetailWarranty, tvDetailSpecs, tvDetailSubtitle, tvDetailCartBadge;
+    private Button btnBackToList, btnDetailPrev, btnDetailNext, btnAddToCart, btnBuyNow, btnOpenCartDetail;
     private int currentIndex = 0;
 
     @Override
@@ -60,6 +61,21 @@ public class ProductDetailActivity extends AppCompatActivity {
         btnBackToList = findViewById(R.id.btnBackToList);
         btnDetailPrev = findViewById(R.id.btnDetailPrev);
         btnDetailNext = findViewById(R.id.btnDetailNext);
+        btnAddToCart = findViewById(R.id.btnAddToCart);
+        btnBuyNow = findViewById(R.id.btnBuyNow);
+        btnOpenCartDetail = findViewById(R.id.btnOpenCartDetail);
+        tvDetailCartBadge = findViewById(R.id.tvDetailCartBadge);
+
+        // Sự kiện mở giỏ hàng từ nút trên Header
+        if (btnOpenCartDetail != null) {
+            btnOpenCartDetail.setOnClickListener(v -> {
+                Intent intent = new Intent(ProductDetailActivity.this, PaymentActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Đồng bộ giỏ hàng theo tài khoản đang đăng nhập
+        CartManager.syncForCurrentUser(this);
 
         // Nhận vị trí sản phẩm được chọn từ ProductListActivity
         currentIndex = getIntent().getIntExtra(KEY_INDEX, 0);
@@ -70,6 +86,30 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Nút quay lại danh sách
         btnBackToList.setOnClickListener(v -> finish());
+
+        // Nút Thêm vào giỏ hàng
+        if (btnAddToCart != null) {
+            btnAddToCart.setOnClickListener(v -> {
+                if (currentIndex >= 0 && currentIndex < ProductListActivity.productList.size()) {
+                    Product current = ProductListActivity.productList.get(currentIndex);
+                    CartManager.addToCart(current, 1);
+                    updateDetailCartBadge();
+                    Toast.makeText(this, "Đã thêm " + current.getName() + " vào giỏ hàng!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        // Nút Mua ngay (Chuyển sang trang Thanh toán)
+        if (btnBuyNow != null) {
+            btnBuyNow.setOnClickListener(v -> {
+                if (currentIndex >= 0 && currentIndex < ProductListActivity.productList.size()) {
+                    Product current = ProductListActivity.productList.get(currentIndex);
+                    CartManager.addToCart(current, 1);
+                    Intent intent = new Intent(ProductDetailActivity.this, PaymentActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
 
         // Nút  xem sản phẩm liền trước
         btnDetailPrev.setOnClickListener(v -> {
@@ -132,6 +172,46 @@ public class ProductDetailActivity extends AppCompatActivity {
             btnDetailNext.setEnabled(hasNext);
             btnDetailPrev.setAlpha(hasPrevious ? 1f : 0.42f);
             btnDetailNext.setAlpha(hasNext ? 1f : 0.42f);
+
+            // Cập nhật trạng thái nút Mua hàng & Thêm giỏ theo tình trạng tồn kho
+            if (btnAddToCart != null && btnBuyNow != null) {
+                if (product.isInStock()) {
+                    btnAddToCart.setEnabled(true);
+                    btnAddToCart.setAlpha(1.0f);
+                    btnAddToCart.setText("Thêm vào giỏ");
+
+                    btnBuyNow.setEnabled(true);
+                    btnBuyNow.setAlpha(1.0f);
+                    btnBuyNow.setText("Mua ngay");
+                } else {
+                    btnAddToCart.setEnabled(false);
+                    btnAddToCart.setAlpha(0.42f);
+                    btnAddToCart.setText("Hết hàng");
+
+                    btnBuyNow.setEnabled(false);
+                    btnBuyNow.setAlpha(0.42f);
+                    btnBuyNow.setText("Tạm hết hàng");
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CartManager.syncForCurrentUser(this);
+        updateDetailCartBadge();
+    }
+
+    private void updateDetailCartBadge() {
+        if (tvDetailCartBadge != null) {
+            int total = CartManager.getTotalItemCount();
+            if (total > 0) {
+                tvDetailCartBadge.setVisibility(View.VISIBLE);
+                tvDetailCartBadge.setText(String.valueOf(total));
+            } else {
+                tvDetailCartBadge.setVisibility(View.GONE);
+            }
         }
     }
 }

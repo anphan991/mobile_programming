@@ -84,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // sự kiện Quay lại Đăng nhập
         tvBackToLogin.setOnClickListener(v -> {
-            finish(); // đóng màn hình Đăng ký đưa người dùng về màn hình Đăng nhập nằm bên dưới
+            finish();
         });
 
         // sự kiện ĐĂNG KÝ
@@ -106,20 +106,23 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // lưu vào SharedPreferences
-            SharedPreferences pref = getSharedPreferences("UserAccount", MODE_PRIVATE);
+            // Khởi tạo DatabaseHelper thao tác với SQLite
+            DatabaseHelper dbHelper = new DatabaseHelper(this);
 
-            // Tạo đối tượng Editor để chỉnh sửa / ghi dữ liệu vào file
-            SharedPreferences.Editor editor = pref.edit();
+            // Kiểm tra tên tài khoản đã tồn tại trong cơ sở dữ liệu chưa
+            if (dbHelper.checkUserExists(user)) {
+                Toast.makeText(this, "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // lưu key-value
-            editor.putString("username", user); // Khóa "username" giữ tên đăng nhập mới
-            editor.putString("password", pass); // Khóa "password" giữ mật khẩu mới
-
-            editor.apply();
-
-            Toast.makeText(this, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
-            finish();
+            // Lưu tài khoản mới vào SQLite Database
+            boolean isSuccess = dbHelper.registerUser(user, pass);
+            if (isSuccess) {
+                Toast.makeText(this, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Đăng ký thất bại, vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }
