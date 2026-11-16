@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+//Encapsulation
 public class CartItem {
     private Product product;
     private int quantity;

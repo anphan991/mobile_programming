@@ -24,7 +24,7 @@ public class CartManager {
         }
         currentUser = currentUser.trim();
 
-        // Nếu chưa có tài khoản đăng nhập -> xóa trắng giỏ hàng trên bộ nhớ
+        // Nếu chưa có tài khoản đăng nhập -> xóa giỏ hàng trên bộ nhớ
         if (currentUser.isEmpty()) {
             activeUsername = "";
             cartList.clear();
