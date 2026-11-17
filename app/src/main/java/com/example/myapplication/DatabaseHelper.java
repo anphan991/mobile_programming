@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
+//lớp DatabaseHelper kế thừa từ SQLiteOpenHelper
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechStore.db";
@@ -23,8 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         //bảng tài khoản người dùng
         db.execSQL("CREATE TABLE IF NOT EXISTS users ("
-                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "username TEXT UNIQUE, "
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, " //khóa chính tự tăng
+                + "username TEXT UNIQUE, " //ràng buộc username
                 + "password TEXT)");
 
         //bảng sản phẩm
@@ -52,10 +52,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         admin.put("password", "123456");
         db.insertWithOnConflict("users", null, admin, SQLiteDatabase.CONFLICT_IGNORE);
 
-        // Nạp sẵn 12 sản phẩm công nghệ vào SQLite
+        // Nạp sẵn 12 sản phẩm vào SQLite
         seedDefaultProducts(db);
     }
 
+    //tạo thêm bảng mới chưa tồn tại
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onCreate(db);
@@ -69,8 +70,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Nạp danh sách sản phẩm vào bảng products
     private void seedDefaultProducts(SQLiteDatabase db) {
+        //duyệt qua các sp ở productlist
         for (Product p : ProductListActivity.createDefaultProducts()) {
-            ContentValues cv = new ContentValues();
+            ContentValues cv = new ContentValues(); //Khởi tạo đối tượng gom dữ liệu cho 1 dòng sản phẩm
             cv.put("name", p.getName());
             cv.put("description", p.getDescription());
             cv.put("price", p.getPrice());
@@ -84,16 +86,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // ánh xạ hình ảnh theo tên sản phẩm
+    public static int getImageForProduct(String name) {
+        if (name == null) return R.drawable.ic_launcher_foreground;
+        switch (name.trim()) {
+            case "iPhone 16 Pro Max": return R.drawable.img_iphone_16;
+            case "Samsung Galaxy S24 Ultra": return R.drawable.img_samsung_s24;
+            case "MacBook Air M3 13 inch": return R.drawable.img_macbook_m3;
+            case "iPad Pro M4 11 inch": return R.drawable.img_ipad_pro_m4;
+            case "Tai nghe AirPods Pro 2": return R.drawable.img_airpods_pro;
+            case "Tai nghe Sony WH-1000XM5": return R.drawable.img_sony_wh1000xm5;
+            case "Apple Watch Series 10": return R.drawable.img_apple_watch_series10;
+            case "Bàn phím cơ Keychron K8 Pro": return R.drawable.img_keychron;
+            case "Chuột Logitech MX Master 3S": return R.drawable.img_logitech_mx;
+            case "Loa Marshall Emberton II": return R.drawable.img_marshall_emberton;
+            case "Tai nghe Marshall Major IV": return R.drawable.img_marshall_major;
+            case "Loa JBL Charge 5": return R.drawable.img_jbl_charge5;
+            default: return R.drawable.ic_launcher_foreground;
+        }
+    }
+
     // Đọc danh sách tất cả sản phẩm từ SQLite
     public ArrayList<Product> getAllProducts() {
-        ArrayList<Product> list = new ArrayList<>();
+        ArrayList<Product> list = new ArrayList<>();  //ds rỗng
         Cursor c = getReadableDatabase().rawQuery(
                 "SELECT name, description, price, image_res_id, category, sku, warranty, detailed_specs, in_stock "
                         + "FROM products ORDER BY id ASC", null);
+        //Kiểm tra an toàn cursor có được tạo thành công hay không tránh ứng dụng bị văng
         if (c != null) {
-            while (c.moveToNext()) {
-                list.add(new Product(
-                        c.getString(0), c.getString(1), c.getString(2), c.getInt(3),
+            while (c.moveToNext()) { //duyệt hết data
+                String name = c.getString(0);
+                int imgRes = getImageForProduct(name); // Luôn lấy ảnh chuẩn xác theo tên
+                list.add(new Product( //khởi tạo đối tượng Product từ các cột trên dòng hiện tại
+                        name, c.getString(1), c.getString(2), imgRes,
                         c.getString(4), c.getString(5), c.getString(6), c.getString(7),
                         c.getInt(8) == 1
                 ));
@@ -108,6 +133,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("username", username);
         cv.put("password", password);
+        //username ràng buộc UNIQUE
+        //Chèn dòng mới vào bảng users trả về ID (hàng, cột) của dòng vừa chèn
+        //insert sẽ trả về -1 so sánh != -1, true: đăng ký thành công / false: đăng ký thất bại
         return getWritableDatabase().insert("users", null, cv) != -1;
     }
 
@@ -122,6 +150,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Kiểm tra đăng nhập
     public boolean checkLogin(String username, String password) {
         Cursor c = getReadableDatabase().rawQuery("SELECT id FROM users WHERE username = ? AND password = ?", new String[]{username, password});
+        //c.moveToFirst(): di chuyển con trỏ đến dòng đầu tiên của kết quả nếu có ít nhất một dòng trùng tên trả về true
         boolean ok = (c != null && c.moveToFirst());
         if (c != null) c.close();
         return ok;
@@ -147,10 +176,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void saveCartItem(String username, Product product, int quantity) {
         if (username == null || username.trim().isEmpty() || product == null) return;
         SQLiteDatabase db = getWritableDatabase();
+        //số lượng <=0: xóa sp
         if (quantity <= 0) {
             db.delete("cart_items", "username = ? AND sku = ?", new String[]{username, product.getSku()});
             return;
         }
+        //số lượng > 0
         ContentValues cv = new ContentValues();
         cv.put("username", username);
         cv.put("sku", product.getSku());
@@ -166,9 +197,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (username == null || username.trim().isEmpty()) return list;
 
         ArrayList<Product> allProducts = getAllProducts();
+        //lọc ra sản phẩm thuộc về đúng username
         Cursor c = getReadableDatabase().rawQuery("SELECT sku, quantity FROM cart_items WHERE username = ? ORDER BY id ASC", new String[]{username});
         if (c != null) {
             while (c.moveToNext()) {
+                //so sku trong bảng để lấy đúng sp
                 String sku = c.getString(0);
                 int qty = c.getInt(1);
                 for (Product p : allProducts) {

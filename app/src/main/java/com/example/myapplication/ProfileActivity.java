@@ -12,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -60,7 +61,9 @@ public class ProfileActivity extends AppCompatActivity {
         Button btnLogoutProfile = findViewById(R.id.btnLogoutProfile);
 
         // Gán dữ liệu hồ sơ
+        // lấy ký tự đầu tiên tại vị trí chỉ số 0 của chuỗi tên tài khoản (substring(0, 1)) và chuyển thành chữ in hoa (toUpperCase()).
         String initial = username.substring(0, 1).toUpperCase();
+        //Gán chữ cái in hoa này vào tâm của một khung hình
         tvProfileAvatar.setText(initial);
         tvProfileUsername.setText(username);
         tvProfileUserValue.setText(username);
@@ -84,6 +87,9 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void performLogout() {
+        // Đăng xuất Firebase Auth
+        FirebaseAuth.getInstance().signOut();
+
         // Xóa bộ nhớ tạm giỏ hàng của phiên hiện tại
         CartManager.onLogout();
 
@@ -94,7 +100,7 @@ public class ProfileActivity extends AppCompatActivity {
         Toast.makeText(this, "Đã đăng xuất tài khoản thành công!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

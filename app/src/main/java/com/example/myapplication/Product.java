@@ -37,6 +37,7 @@ public class Product {
         this.inStock = inStock;
     }
 
+    //getter
     public String getName() {
         return name;
     }

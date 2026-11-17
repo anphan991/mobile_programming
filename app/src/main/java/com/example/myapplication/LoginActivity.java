@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText edtLoginUser, edtLoginPass;
@@ -32,19 +34,30 @@ public class LoginActivity extends AppCompatActivity {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         dbHelper.getReadableDatabase();
 
-        // Kiểm tra phiên đăng nhập đã tồn tại trong SharedPreferences chưa (auto login)
+        // kiểm tra phiên đăng nhập tự động
         SharedPreferences sessionPref = getSharedPreferences("UserSession", MODE_PRIVATE);
         String activeUser = sessionPref.getString("CURRENT_USER", null);
-        if (activeUser != null && !activeUser.trim().isEmpty()) {
+
+        // kiểm tra user hiện tại trên Firebase
+        FirebaseUser fbUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // Chỉ tự login nếu máy còn lưu phiên cục bộ hợp lệ
+        // hoặc phiên Firebase vẫn còn hiệu lực (hoặc admin)
+        boolean hasFirebaseSession = (fbUser != null);
+        boolean hasLocalSession = (activeUser != null && !activeUser.trim().isEmpty());
+
+        if (hasLocalSession && (hasFirebaseSession || "admin".equalsIgnoreCase(activeUser))) {
             Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
+            intent.putExtra(ProductListActivity.KEY_USER, activeUser);
             startActivity(intent);
             finish();
             return;
         }
 
+        //nạp file giao diện
         setContentView(R.layout.activity_login);
 
-        // Xử lý WindowInsets tránh chồng lấp thanh trạng thái
+        // xử lử lý WindowInsets tránh chồng lấp thanh trạng thái
         View rootView = findViewById(R.id.rootLogin);
         if (rootView != null) {
             final int baseLeft = rootView.getPaddingLeft();
@@ -69,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // ẩn/hiện mật khẩu
         btnToggleLoginPass.setOnClickListener(v -> {
+            //nếu password hiện chuyển thành •
             if (isPassVisible) {
                 edtLoginPass.setTransformationMethod(PasswordTransformationMethod.getInstance()); // Đổi sang ẩn
                 btnToggleLoginPass.setAlpha(0.45f);
@@ -101,32 +115,50 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // Xác thực thông tin đăng nhập từ SQLite Database
-            boolean isValidUser = dbHelper.checkLogin(inputUser, inputPass);
+            // chuẩn hóa định dạng email cho Firebase
+            String email = inputUser.contains("@") ? inputUser : inputUser + "@gmail.com";
 
-            // admin / 123456
-            if (!isValidUser && inputUser.equals("admin") && inputPass.equals("123456")) {
-                isValidUser = true;
-            }
+            // gửi yêu cầu xác thực email và password lên Firebase
+            /*Firebase lưu JWT Access Token và Refresh Token vào vùng nhớ nội bộ của app
+            lần sau khởi động app, FirebaseAuth.getInstance().getCurrentUser() sẽ không bị null*/
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, inputPass)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
 
-            if (isValidUser) {
-                Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                            // Lưu phiên người dùng hiện tại vào SharedPreferences (UserSession)
+                            sessionPref.edit().putString("CURRENT_USER", inputUser).apply();
 
-                // Lưu phiên người dùng hiện tại vào SharedPreferences (UserSession)
-                sessionPref.edit().putString("CURRENT_USER", inputUser).apply();
+                            // Đồng bộ giỏ hàng tương ứng với tài khoản vừa đăng nhập
+                            CartManager.syncForCurrentUser(this);
 
-                // Đồng bộ giỏ hàng tương ứng với tài khoản vừa đăng nhập
-                CartManager.syncForCurrentUser(this);
+                            // Chuyển sang ProductListActivity
+                            Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
+                            intent.putExtra(ProductListActivity.KEY_USER, inputUser);
+                            startActivity(intent);
 
-                // Chuyển sang ProductListActivity
-                Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
-                intent.putExtra(ProductListActivity.KEY_USER, inputUser);
-                startActivity(intent);
+                            finish();
+                        } else {
+                            // Dự phòng kiểm tra tài khoản offline trong SQLite hoặc tài khoản admin
+                            boolean isValidUser = dbHelper.checkLogin(inputUser, inputPass);
+                            if (!isValidUser && inputUser.equals("admin") && inputPass.equals("123456")) {
+                                isValidUser = true;
+                            }
 
-                finish();
-            } else {
-                Toast.makeText(this, "Sai tên đăng nhập hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
-            }
+                            if (isValidUser) {
+                                Toast.makeText(this, "Đăng nhập offline thành công!", Toast.LENGTH_SHORT).show();
+                                sessionPref.edit().putString("CURRENT_USER", inputUser).apply();
+                                CartManager.syncForCurrentUser(this);
+                                Intent intent = new Intent(LoginActivity.this, ProductListActivity.class);
+                                intent.putExtra(ProductListActivity.KEY_USER, inputUser);
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                String error = task.getException() != null ? task.getException().getMessage() : "Sai email hoặc mật khẩu!";
+                                Toast.makeText(this, "Đăng nhập thất bại: " + error, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
         });
     }
 

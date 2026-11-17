@@ -18,6 +18,7 @@ public class CartManager {
         appContext = context.getApplicationContext();
 
         SharedPreferences sessionPref = appContext.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+        //xem user hiện tại là ai
         String currentUser = sessionPref.getString("CURRENT_USER", "");
         if (currentUser == null) {
             currentUser = "";
@@ -51,14 +52,14 @@ public class CartManager {
         if (product == null) return;
         for (CartItem item : cartList) {
             if (item.getProduct().getSku().equals(product.getSku())) {
-                int newQty = item.getQuantity() + quantity;
+                int newQty = item.getQuantity() + quantity; //nếu cùng sku: sl cũ + sl mới
                 item.setQuantity(newQty);
                 persistItem(product, newQty);
                 return;
             }
         }
         cartList.add(new CartItem(product, quantity));
-        persistItem(product, quantity);
+        persistItem(product, quantity); //đồng bộ vào sqlite
     }
 
     // Tăng hoặc giảm số lượng
@@ -81,7 +82,7 @@ public class CartManager {
         persistItem(item.getProduct(), 0);
     }
 
-    // Xóa sạch giỏ hàng của tài khoản hiện tại sau khi đặt hàng thành công
+    // Xóa giỏ hàng của tài khoản hiện tại sau khi đặt hàng thành công
     public static void clearCart() {
         cartList.clear();
         if (appContext != null && !activeUsername.isEmpty()) {

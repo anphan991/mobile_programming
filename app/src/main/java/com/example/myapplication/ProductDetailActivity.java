@@ -176,6 +176,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             // Cập nhật trạng thái nút Mua hàng & Thêm giỏ theo tình trạng tồn kho
             if (btnAddToCart != null && btnBuyNow != null) {
                 if (product.isInStock()) {
+                    //inStock == true
                     btnAddToCart.setEnabled(true);
                     btnAddToCart.setAlpha(1.0f);
                     btnAddToCart.setText("Thêm vào giỏ");

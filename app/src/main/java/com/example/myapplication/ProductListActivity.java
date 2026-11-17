@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -16,78 +18,145 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * ProductListActivity: Màn hình chính hiển thị danh sách sản phẩm.
+ * Hỗ trợ phân trang, lọc danh mục, đồng bộ Cloud Firestore và xác thực Firebase.
+ */
 public class ProductListActivity extends AppCompatActivity {
 
     public static final String KEY_USER = "KEY_USER";
+    private static final String PREF_USER_SESSION = "UserSession";
+    private static final String KEY_CURRENT_USER = "CURRENT_USER";
+    private static final String DEFAULT_USER = "admin";
+    private static final String FIRESTORE_COLLECTION_PRODUCTS = "products";
+    private static final int ITEMS_PER_PAGE = 10;
+
+    // Mã lọc danh mục
+    public static final String FILTER_ALL = "ALL";
+    public static final String FILTER_MOBILE = "MOBILE";
+    public static final String FILTER_ACCESSORY = "ACCESSORY";
+    public static final String FILTER_AUDIO = "AUDIO";
+
+
+    // Giữ static để tương thích với ProductDetailActivity và PaymentActivity
     public static ArrayList<Product> productList = new ArrayList<>();
-    private ArrayList<Product> filteredList = new ArrayList<>();
-    private ArrayList<Product> currentPageList = new ArrayList<>();
+    private final ArrayList<Product> filteredList = new ArrayList<>();
+    private final ArrayList<Product> currentPageList = new ArrayList<>();
 
     private ProductAdapter adapter;
     private int currentPage = 1;
-    private final int itemsPerPage = 10;
+    private boolean isMenuOpen = false;
+    private String currentFilterCode = FILTER_ALL;
 
+    private ListView listView;
     private LinearLayout layoutMenu;
     private MaterialButton btnToggleMenu, btnPrev, btnNext, btnOpenCart;
     private TextView tvPage, tvProductCount, tvHeaderSubtitle, tvHeaderCartBadge;
+    private TextView tvWelcomeUser, tvMenuAccountBadge;
     private TextView menuHome, menuFilterMobile, menuFilterAccessory, menuFilterAudio;
-    private boolean isMenuOpen = false;
+    private TextView menuProfile, menuCart, menuInfo, menuLogout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
-        // Chống tràn status bar
+        setupEdgeToEdgeInsets();
+        initViews();
+        setupUserSession();
+        setupListViewAndAdapter();
+        setupNavigationAndMenu();
+        loadLocalData();
+        syncProductsWithFirestore();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Đồng bộ giỏ hàng và cập nhật số lượng badge khi quay lại màn hình
+        CartManager.syncForCurrentUser(this);
+        updateCartBadge();
+    }
+
+    private void setupEdgeToEdgeInsets() {
         View root = findViewById(R.id.rootProductList);
         if (root != null) {
-            int pl = root.getPaddingLeft(), pt = root.getPaddingTop(), pr = root.getPaddingRight(), pb = root.getPaddingBottom();
+            final int pl = root.getPaddingLeft();
+            final int pt = root.getPaddingTop();
+            final int pr = root.getPaddingRight();
+            final int pb = root.getPaddingBottom();
             ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets bars = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                );
                 v.setPadding(pl + bars.left, pt + bars.top, pr + bars.right, pb + bars.bottom);
                 return insets;
             });
         }
+    }
 
-        // Tải dữ liệu sản phẩm từ SQLite
-        initProductData();
 
-        // Ánh xạ View chính
-        ListView listView = findViewById(R.id.listView);
-        TextView tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
-        TextView tvMenuAccountBadge = findViewById(R.id.tvMenuAccountBadge);
-        tvProductCount = findViewById(R.id.tvProductCount);
-        tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
-        tvHeaderCartBadge = findViewById(R.id.tvHeaderCartBadge);
+     //Ánh xạ các view của Activity tại một nơi tập trung.
+    private void initViews() {
+        listView = findViewById(R.id.listView);
         layoutMenu = findViewById(R.id.layoutMenu);
+
         btnToggleMenu = findViewById(R.id.btnToggleMenu);
         btnOpenCart = findViewById(R.id.btnOpenCart);
         btnPrev = findViewById(R.id.btnPrev);
         btnNext = findViewById(R.id.btnNext);
+
+        tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
+        tvMenuAccountBadge = findViewById(R.id.tvMenuAccountBadge);
+        tvProductCount = findViewById(R.id.tvProductCount);
+        tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
+        tvHeaderCartBadge = findViewById(R.id.tvHeaderCartBadge);
         tvPage = findViewById(R.id.tvPage);
 
-        // Lấy tên người dùng hiện tại từ phiên đăng nhập
-        SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
-        String username = session.getString("CURRENT_USER", getIntent().getStringExtra(KEY_USER));
-        if (username == null || username.trim().isEmpty()) username = "admin";
-        session.edit().putString("CURRENT_USER", username).apply();
+        // Menu items
+        menuHome = findViewById(R.id.menuHome);
+        menuFilterMobile = findViewById(R.id.menuFilterMobile);
+        menuFilterAccessory = findViewById(R.id.menuFilterAccessory);
+        menuFilterAudio = findViewById(R.id.menuFilterAudio);
+        menuProfile = findViewById(R.id.menuProfile);
+        menuCart = findViewById(R.id.menuCart);
+        menuInfo = findViewById(R.id.menuInfo);
+        menuLogout = findViewById(R.id.menuLogout);
+    }
 
-        tvWelcomeUser.setText("Xin chào, " + username);
-        if (tvMenuAccountBadge != null) tvMenuAccountBadge.setText("Tài khoản: " + username);
 
-        // Đồng bộ giỏ hàng của tài khoản đang đăng nhập
+     //Khởi tạo thông tin phiên người dùng và hiển thị lời chào.
+    private void setupUserSession() {
+        SharedPreferences session = getSharedPreferences(PREF_USER_SESSION, MODE_PRIVATE);
+        String username = session.getString(KEY_CURRENT_USER, getIntent().getStringExtra(KEY_USER));
+        if (username == null || username.trim().isEmpty()) {
+            username = DEFAULT_USER;
+        }
+        session.edit().putString(KEY_CURRENT_USER, username).apply();
+
+        if (tvWelcomeUser != null) {
+            tvWelcomeUser.setText("Xin chào, " + username);
+        }
+        if (tvMenuAccountBadge != null) {
+            tvMenuAccountBadge.setText("Tài khoản: " + username);
+        }
+
         CartManager.syncForCurrentUser(this);
+    }
 
-        // Thiết lập danh sách và Adapter
-        filteredList.clear();
-        filteredList.addAll(productList);
+
+    // Cài đặt Adapter và sự kiện click xem chi tiết sản phẩm.
+    private void setupListViewAndAdapter() {
         adapter = new ProductAdapter(this, currentPageList);
         listView.setAdapter(adapter);
-        loadPageData(currentPage);
 
-        // Sự kiện click mở xem chi tiết sản phẩm
         listView.setOnItemClickListener((parent, view, position, id) -> {
             closeMenu();
             Product item = currentPageList.get(position);
@@ -96,20 +165,19 @@ public class ProductListActivity extends AppCompatActivity {
             intent.putExtra(ProductDetailActivity.KEY_INDEX, realIndex >= 0 ? realIndex : position);
             startActivity(intent);
         });
-
-        // Thiết lập Menu và các nút điều hướng
-        setupNavigationAndMenu();
     }
 
-    // Thiết lập sự kiện cho Menu và các nút bấm
+
+     // Cài đặt tất cả sự kiện bấm nút và menu điều hướng.
     private void setupNavigationAndMenu() {
+        // Nút toggle menu & nút mở giỏ hàng
         btnToggleMenu.setOnClickListener(v -> toggleMenu());
         btnOpenCart.setOnClickListener(v -> {
             closeMenu();
             startActivity(new Intent(this, PaymentActivity.class));
         });
 
-        // Phân trang
+        // Nút phân trang
         btnPrev.setOnClickListener(v -> {
             if (currentPage > 1) {
                 currentPage--;
@@ -117,37 +185,27 @@ public class ProductListActivity extends AppCompatActivity {
             }
         });
         btnNext.setOnClickListener(v -> {
-            int totalPages = Math.max(1, (int) Math.ceil((double) filteredList.size() / itemsPerPage));
-            if (currentPage < totalPages) {
+            if (currentPage < getTotalPages()) {
                 currentPage++;
                 loadPageData(currentPage);
             }
         });
 
-        // Các mục lọc trong Menu
-        menuHome = findViewById(R.id.menuHome);
-        menuFilterMobile = findViewById(R.id.menuFilterMobile);
-        menuFilterAccessory = findViewById(R.id.menuFilterAccessory);
-        menuFilterAudio = findViewById(R.id.menuFilterAudio);
-        TextView menuProfile = findViewById(R.id.menuProfile);
-        TextView menuCart = findViewById(R.id.menuCart);
-        TextView menuInfo = findViewById(R.id.menuInfo);
-        TextView menuLogout = findViewById(R.id.menuLogout);
+        // Bộ lọc danh mục
+        menuHome.setOnClickListener(v -> applyCategoryFilter(FILTER_ALL, "Danh mục thiết bị công nghệ", menuHome));
+        menuFilterMobile.setOnClickListener(v -> applyCategoryFilter(FILTER_MOBILE, "Điện thoại & Máy tính bảng", menuFilterMobile));
+        menuFilterAccessory.setOnClickListener(v -> applyCategoryFilter(FILTER_ACCESSORY, "Laptop & Phụ kiện công nghệ", menuFilterAccessory));
+        menuFilterAudio.setOnClickListener(v -> applyCategoryFilter(FILTER_AUDIO, "Thiết bị âm thanh chính hãng", menuFilterAudio));
 
-        if (menuHome != null) menuHome.setText("Tất cả sản phẩm (" + productList.size() + ")");
-
-        menuHome.setOnClickListener(v -> applyCategoryFilter("ALL", "Danh mục thiết bị công nghệ", menuHome));
-        menuFilterMobile.setOnClickListener(v -> applyCategoryFilter("MOBILE", "Điện thoại & Máy tính bảng", menuFilterMobile));
-        menuFilterAccessory.setOnClickListener(v -> applyCategoryFilter("ACCESSORY", "Laptop & Phụ kiện công nghệ", menuFilterAccessory));
-        menuFilterAudio.setOnClickListener(v -> applyCategoryFilter("AUDIO", "Thiết bị âm thanh chính hãng", menuFilterAudio));
-
+        // Các mục chức năng trong menu
         View.OnClickListener openProfile = v -> {
             closeMenu();
             startActivity(new Intent(this, ProfileActivity.class));
         };
         menuProfile.setOnClickListener(openProfile);
-        TextView tvMenuAccountBadge = findViewById(R.id.tvMenuAccountBadge);
-        if (tvMenuAccountBadge != null) tvMenuAccountBadge.setOnClickListener(openProfile);
+        if (tvMenuAccountBadge != null) {
+            tvMenuAccountBadge.setOnClickListener(openProfile);
+        }
 
         menuCart.setOnClickListener(v -> {
             closeMenu();
@@ -156,105 +214,14 @@ public class ProductListActivity extends AppCompatActivity {
 
         menuInfo.setOnClickListener(v -> {
             closeMenu();
-            new AlertDialog.Builder(this)
-                    .setTitle("Về Test Store")
-                    .setMessage("Phiên bản: 1.2.0\nHệ thống tra cứu và đặt mua thiết bị công nghệ.\nHỗ trợ phân trang, lọc danh mục và SQLite Database.")
-                    .setPositiveButton("Đóng", null)
-                    .show();
+            showAppInfoDialog();
         });
 
         menuLogout.setOnClickListener(v -> performLogout());
     }
 
-    // Ẩn/hiện Menu
-    private void toggleMenu() {
-        isMenuOpen = !isMenuOpen;
-        btnToggleMenu.setIconResource(isMenuOpen ? R.drawable.ic_close_24 : R.drawable.ic_menu_24);
-        layoutMenu.setVisibility(isMenuOpen ? View.VISIBLE : View.GONE);
-    }
-
-    private void closeMenu() {
-        if (isMenuOpen) toggleMenu();
-    }
-
-    // Lọc sản phẩm theo danh mục
-    private void applyCategoryFilter(String filterCode, String subtitle, TextView selectedView) {
-        closeMenu();
-        filteredList.clear();
-        for (Product p : productList) {
-            String cat = p.getCategory();
-            if ("ALL".equals(filterCode)
-                    || ("MOBILE".equals(filterCode) && ("Điện thoại".equals(cat) || "Máy tính bảng".equals(cat)))
-                    || ("AUDIO".equals(filterCode) && "Thiết bị âm thanh".equals(cat))
-                    || ("ACCESSORY".equals(filterCode) && !"Điện thoại".equals(cat) && !"Máy tính bảng".equals(cat) && !"Thiết bị âm thanh".equals(cat))) {
-                filteredList.add(p);
-            }
-        }
-        if (tvHeaderSubtitle != null) tvHeaderSubtitle.setText(subtitle);
-
-        // Đổi màu làm nổi bật mục menu đang chọn
-        TextView[] menuItems = new TextView[]{menuHome, menuFilterMobile, menuFilterAccessory, menuFilterAudio};
-        for (TextView item : menuItems) {
-            if (item == null) continue;
-            boolean active = (item == selectedView);
-            item.setTextColor(ContextCompat.getColor(this, active ? R.color.primary_dark : R.color.ink));
-            item.setTypeface(null, active ? Typeface.BOLD : Typeface.NORMAL);
-        }
-
-        currentPage = 1;
-        loadPageData(currentPage);
-    }
-
-    // Hiển thị sản phẩm theo từng trang
-    private void loadPageData(int page) {
-        currentPageList.clear();
-        int total = filteredList.size();
-        int start = (page - 1) * itemsPerPage;
-        int end = Math.min(start + itemsPerPage, total);
-        for (int i = start; i < end; i++) {
-            currentPageList.add(filteredList.get(i));
-        }
-
-        int totalPages = Math.max(1, (int) Math.ceil((double) total / itemsPerPage));
-        if (tvPage != null) tvPage.setText(page + " / " + totalPages);
-        if (tvProductCount != null) {
-            tvProductCount.setText(total == 0 ? "0 sản phẩm" : "Hiển thị " + (start + 1) + "–" + end + " / " + total + " sản phẩm");
-        }
-        if (btnPrev != null && btnNext != null) {
-            btnPrev.setEnabled(page > 1);
-            btnPrev.setAlpha(page > 1 ? 1f : 0.42f);
-            btnNext.setEnabled(page < totalPages);
-            btnNext.setAlpha(page < totalPages ? 1f : 0.42f);
-        }
-        if (adapter != null) adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        CartManager.syncForCurrentUser(this);
-        updateCartBadge();
-    }
-
-    private void updateCartBadge() {
-        if (tvHeaderCartBadge != null) {
-            int total = CartManager.getTotalItemCount();
-            tvHeaderCartBadge.setVisibility(total > 0 ? View.VISIBLE : View.GONE);
-            if (total > 0) tvHeaderCartBadge.setText(String.valueOf(total));
-        }
-    }
-
-    private void performLogout() {
-        CartManager.onLogout();
-        getSharedPreferences("UserSession", MODE_PRIVATE).edit().clear().apply();
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    // Khởi tạo danh mục sản phẩm từ SQLite hoặc dữ liệu mặc định
-    private void initProductData() {
+     // data ban đầu từ SQLite
+    private void loadLocalData() {
         DatabaseHelper dbHelper = new DatabaseHelper(this);
         ArrayList<Product> dbProducts = dbHelper.getAllProducts();
         productList.clear();
@@ -263,9 +230,187 @@ public class ProductListActivity extends AppCompatActivity {
         } else {
             productList.addAll(createDefaultProducts());
         }
+
+        filteredList.clear();
+        filteredList.addAll(productList);
+        updateMenuBadgeCount();
+        loadPageData(currentPage);
     }
 
-    // 12 sản phẩm công nghệ mặc định
+    private void syncProductsWithFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection(FIRESTORE_COLLECTION_PRODUCTS).get().addOnSuccessListener(snapshots -> {
+            if (snapshots.isEmpty()) {
+                for (Product p : createDefaultProducts()) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("name", p.getName());
+                    map.put("price", p.getPrice());
+                    map.put("category", p.getCategory());
+                    map.put("sku", p.getSku());
+                    map.put("description", p.getDescription());
+                    map.put("warranty", p.getWarranty());
+                    map.put("detailedSpecs", p.getDetailedSpecs());
+                    map.put("inStock", p.isInStock());
+                    db.collection(FIRESTORE_COLLECTION_PRODUCTS).document(p.getSku()).set(map);
+                }
+            } else {
+                productList.clear();
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    productList.add(new Product(
+                            doc.getString("name"), doc.getString("description"), doc.getString("price"),
+                            DatabaseHelper.getImageForProduct(doc.getString("name")),
+                            doc.getString("category"), doc.getString("sku"),
+                            doc.getString("warranty"), doc.getString("detailedSpecs"),
+                            Boolean.TRUE.equals(doc.getBoolean("inStock"))
+                    ));
+                }
+                applyCategoryFilter(currentFilterCode, "Danh mục thiết bị công nghệ", menuHome);
+                updateMenuBadgeCount();
+            }
+        });
+    }
+    private void applyCategoryFilter(String filterCode, String subtitle, TextView selectedView) {
+        closeMenu();
+        currentFilterCode = filterCode;
+        filteredList.clear();
+
+        for (Product p : productList) {
+            if (matchesCategory(p.getCategory(), filterCode)) {
+                filteredList.add(p);
+            }
+        }
+
+        if (tvHeaderSubtitle != null) {
+            tvHeaderSubtitle.setText(subtitle);
+        }
+
+        highlightActiveMenuItem(selectedView);
+        currentPage = 1;
+        loadPageData(currentPage);
+    }
+
+
+    private boolean matchesCategory(String category, String filterCode) {
+        if (FILTER_ALL.equals(filterCode)) return true;
+        if (category == null) return false;
+
+        switch (filterCode) {
+            case FILTER_MOBILE:
+                return "Điện thoại".equals(category) || "Máy tính bảng".equals(category);
+            case FILTER_AUDIO:
+                return "Thiết bị âm thanh".equals(category);
+            case FILTER_ACCESSORY:
+                return !"Điện thoại".equals(category) && !"Máy tính bảng".equals(category) && !"Thiết bị âm thanh".equals(category);
+            default:
+                return true;
+        }
+    }
+
+    private void highlightActiveMenuItem(TextView selectedView) {
+        TextView[] menuItems = new TextView[]{menuHome, menuFilterMobile, menuFilterAccessory, menuFilterAudio};
+        for (TextView item : menuItems) {
+            if (item == null) continue;
+            boolean active = (item == selectedView);
+            item.setTextColor(ContextCompat.getColor(this, active ? R.color.primary_dark : R.color.ink));
+            item.setTypeface(null, active ? Typeface.BOLD : Typeface.NORMAL);
+        }
+    }
+
+    private void loadPageData(int page) {
+        currentPageList.clear();
+        int total = filteredList.size();
+        int start = (page - 1) * ITEMS_PER_PAGE;
+        int end = Math.min(start + ITEMS_PER_PAGE, total);
+
+        for (int i = start; i < end; i++) {
+            currentPageList.add(filteredList.get(i));
+        }
+
+        int totalPages = getTotalPages();
+        if (tvPage != null) {
+            tvPage.setText(page + " / " + totalPages);
+        }
+        if (tvProductCount != null) {
+            tvProductCount.setText(total == 0 ? "0 sản phẩm" : "Hiển thị " + (start + 1) + "–" + end + " / " + total + " sản phẩm");
+        }
+
+        updatePaginationButtons(page, totalPages);
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private int getTotalPages() {
+        return Math.max(1, (int) Math.ceil((double) filteredList.size() / ITEMS_PER_PAGE));
+    }
+
+    private void updatePaginationButtons(int page, int totalPages) {
+        if (btnPrev != null) {
+            boolean canPrev = page > 1;
+            btnPrev.setEnabled(canPrev);
+            btnPrev.setAlpha(canPrev ? 1.0f : 0.42f);
+        }
+        if (btnNext != null) {
+            boolean canNext = page < totalPages;
+            btnNext.setEnabled(canNext);
+            btnNext.setAlpha(canNext ? 1.0f : 0.42f);
+        }
+    }
+
+    private void updateMenuBadgeCount() {
+        if (menuHome != null) {
+            menuHome.setText("Tất cả sản phẩm (" + productList.size() + ")");
+        }
+    }
+
+
+    private void toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+        btnToggleMenu.setIconResource(isMenuOpen ? R.drawable.ic_close_24 : R.drawable.ic_menu_24);
+        layoutMenu.setVisibility(isMenuOpen ? View.VISIBLE : View.GONE);
+    }
+
+    private void closeMenu() {
+        if (isMenuOpen) {
+            toggleMenu();
+        }
+    }
+
+    private void updateCartBadge() {
+        if (tvHeaderCartBadge != null) {
+            int total = CartManager.getTotalItemCount();
+            tvHeaderCartBadge.setVisibility(total > 0 ? View.VISIBLE : View.GONE);
+            if (total > 0) {
+                tvHeaderCartBadge.setText(String.valueOf(total));
+            }
+        }
+    }
+
+    private void showAppInfoDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Về Test Store")
+                .setMessage("Phiên bản: 1.2.0\nHệ thống tra cứu và đặt mua thiết bị công nghệ.")
+                .setPositiveButton("Đóng", null)
+                .show();
+    }
+
+
+     // Đăng xuất tài khoản khỏi Firebase và hệ thống cục bộ
+    private void performLogout() {
+        FirebaseAuth.getInstance().signOut();
+        CartManager.onLogout();
+        getSharedPreferences(PREF_USER_SESSION, MODE_PRIVATE).edit().clear().apply();
+        Toast.makeText(this, "Đã đăng xuất tài khoản!", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+
+
+    //các sản phẩm mặc định được sử dụng để khởi tạo dữ liệu.
     public static ArrayList<Product> createDefaultProducts() {
         ArrayList<Product> list = new ArrayList<>();
         list.add(new Product("iPhone 16 Pro Max", "256GB · Titan Tự Nhiên · Chip A18 Pro", "34.990.000đ", R.drawable.img_iphone_16, "Điện thoại", "TZ-IP16PM-256", "12 tháng Apple VN", "• Màn hình: Super Retina XDR OLED 6.9 inch, ProMotion 120Hz\n• Vi xử lý: Apple A18 Pro tiến trình 3nm thế hệ thứ 2\n• Camera sau: Hệ thống 3 camera 48MP + Telephoto 5x\n• Chất liệu: Khung viền Titan cấp độ 5 bền nhẹ, cổng USB-C", true));
@@ -279,7 +424,7 @@ public class ProductListActivity extends AppCompatActivity {
         list.add(new Product("Chuột Logitech MX Master 3S", "Cảm biến Darkfield 8000 DPI · Click siêu êm", "2.190.000đ", R.drawable.img_logitech_mx, "Phụ kiện", "TZ-LG-MX3S", "24 tháng chính hãng", "• Cảm biến: Quang học Darkfield 8000 DPI hoạt động tốt trên mặt kính\n• Nút bấm: Công nghệ Quiet Click giảm 90% tiếng ồn khi thao tác\n• Con lăn: Điện từ MagSpeed cuộn 1.000 dòng mỗi giây\n• Kết nối: Đầu thu Logi Bolt USB hoặc Bluetooth Low Energy", true));
         list.add(new Product("Loa Marshall Emberton II", "Âm thanh đa hướng 360 độ · Pin hơn 30 giờ", "3.990.000đ", R.drawable.img_marshall_emberton, "Thiết bị âm thanh", "TZ-MS-EMB2", "12 tháng chính hãng", "• Công suất: 2 x 10W mạch khuếch đại Class D\n• Chuẩn kháng nước: IP67 chống bụi và nước cao cấp\n• Kết nối: Bluetooth 5.1, chế độ ghép đôi Stack Mode\n• Thời lượng pin: Lên đến hơn 30 giờ chơi nhạc liên tục", true));
         list.add(new Product("Tai nghe Marshall Major IV", "Pin kỷ lục 80 giờ · Sạc không dây tiện lợi", "3.190.000đ", R.drawable.img_marshall_major, "Thiết bị âm thanh", "TZ-MS-MJ4", "12 tháng chính hãng", "• Thiết kế: On-ear cổ điển đặc trưng Marshall, có thể gập gọn\n• Pin: Hơn 80 giờ nghe nhạc, sạc nhanh 15 phút nghe 15 giờ\n• Phím điều khiển: Núm xoay đa hướng Brass Control Knob\n• Kết nối: Bluetooth 5.0 và cổng AUX 3.5mm chia sẻ âm thanh", true));
-        list.add(new Product("Loa JBL Charge 5", "Âm trầm Original Pro Sound · Kháng nước IP67", "3.490.000đ", R.drawable.img_jbl_charge5, "Thiết bị âm thanh", "TZ-JBL-CHG5", "12 tháng chính hãng", "• Âm thanh: Driver dạng racetrack cải tiến cho âm trầm uy lực\n• Tính năng sạc dự phòng: Cổng USB Type-A sạc điện thoại\n• Kết nối: PartyBoost kết nối nhiều loa JBL cùng lúc\n• Thời lượng pin: 20 giờ chơi nhạc bền bỉ mọi bữa tiệc", true));
+        list.add(new Product("Loa JBL Charge 5", "Âm trầm Original Pro Sound · Kháng nước IP67", "3.490.000đ", R.drawable.img_jbl_charge5, "Thiết bị âm thanh", "TZ-JBL-CHG5", "12 tháng chính hãng", "• Âm thanh: Driver dạng racetrack cải tiến cho âm trầm uy lực\n• Tính năng sản phẩm: Cổng USB Type-A sạc điện thoại\n• Kết nối: PartyBoost kết nối nhiều loa JBL cùng lúc\n• Thời lượng pin: 20 giờ chơi nhạc bền bỉ mọi bữa tiệc", true));
         return list;
     }
 }

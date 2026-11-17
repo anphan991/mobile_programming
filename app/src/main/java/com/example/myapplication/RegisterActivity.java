@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText edtRegUser, edtRegPass, edtRegConfirmPass;
@@ -106,23 +107,36 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // Khởi tạo DatabaseHelper thao tác với SQLite
-            DatabaseHelper dbHelper = new DatabaseHelper(this);
-
-            // Kiểm tra tên tài khoản đã tồn tại trong cơ sở dữ liệu chưa
-            if (dbHelper.checkUserExists(user)) {
-                Toast.makeText(this, "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác!", Toast.LENGTH_SHORT).show();
+            // ràng buộc của Firebase: password tối thiểu 6 ký tự
+            if (pass.length() < 6) {
+                Toast.makeText(this, "Mật khẩu phải từ 6 ký tự trở lên!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Lưu tài khoản mới vào SQLite Database
-            boolean isSuccess = dbHelper.registerUser(user, pass);
-            if (isSuccess) {
-                Toast.makeText(this, "Đăng ký thành công! Vui lòng đăng nhập.", Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                Toast.makeText(this, "Đăng ký thất bại, vui lòng thử lại!", Toast.LENGTH_SHORT).show();
-            }
+            // chuẩn hóa Email cho Firebase
+            String email = user.contains("@") ? user : user + "@gmail.com";
+
+            // gọi SDK Firebase Authentication để tạo tài khoản trên máy chủ Google
+            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
+                    // addOnCompleteListener: đăng ký một Listener bất đồng bộ (chờ phản hồi mạng từ Google)
+                    .addOnCompleteListener(this, task -> {
+                        // true khi Google đã tạo xong User và cấp UID
+                        if (task.isSuccessful()) {
+                            // lưu dự phòng vào SQLite
+                            DatabaseHelper dbHelper = new DatabaseHelper(this);
+                            if (!dbHelper.checkUserExists(user)) {
+                                dbHelper.registerUser(user, pass);
+                            }
+
+                            Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            // lấy thông báo lỗi từ Firebase
+                            String error = task.getException() != null ? task.getException().getMessage() : "Đăng ký thất bại!";
+                            Toast.makeText(this, "Lỗi: " + error, Toast.LENGTH_LONG).show();
+                        }
+                    });
         });
     }
 }
+

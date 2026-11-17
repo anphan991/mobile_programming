@@ -17,6 +17,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class PaymentActivity extends AppCompatActivity {
 
@@ -93,6 +99,7 @@ public class PaymentActivity extends AppCompatActivity {
         layoutCartItems.removeAllViews();
         boolean isEmpty = CartManager.cartList.isEmpty();
 
+        // nếu giỏ rỗng: hiện thông báo rỗng và vô hiệu hóa nút đặt hàng
         tvEmptyCartNotice.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         btnConfirmOrder.setEnabled(!isEmpty);
         btnConfirmOrder.setAlpha(!isEmpty ? 1.0f : 0.45f);
@@ -105,6 +112,7 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
 
+        // Bơm từng dòng sản phẩm vào layoutCartItems
         LayoutInflater inflater = LayoutInflater.from(this);
         for (CartItem item : CartManager.cartList) {
             Product product = item.getProduct();
@@ -136,6 +144,7 @@ public class PaymentActivity extends AppCompatActivity {
         }
 
         long totalMoney = CartManager.getTotalPrice();
+        // Cập nhật tổng tiền và nhãn nút xác nhận
         String formatted = CartManager.formatPrice(totalMoney);
         int totalItems = CartManager.getTotalItemCount();
 
@@ -171,6 +180,7 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
 
+        //Bắt buộc user phải điền đủ thông tin
         String name = edtReceiverName.getText().toString().trim();
         String phone = edtReceiverPhone.getText().toString().trim();
         String address = edtReceiverAddress.getText().toString().trim();
@@ -181,6 +191,8 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
 
+        // Sinh mã đơn hàng ngẫu nhiên
+        // thời gian thực của máy tính tính bằng mili-giây chia lấy dư cho 900.000 rồi cộng 100.000 (100000 đến 999999)
         String orderCode = "ORD-" + (Math.abs(System.currentTimeMillis() % 900000L) + 100000L);
         String totalFormatted = CartManager.formatPrice(CartManager.getTotalPrice());
         int totalItems = CartManager.getTotalItemCount();
@@ -189,6 +201,21 @@ public class PaymentActivity extends AppCompatActivity {
         SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUser = session.getString("CURRENT_USER", "admin");
         new DatabaseHelper(this).insertOrder(orderCode, currentUser, name, phone, address, note, selectedPaymentMethod, totalFormatted, totalItems);
+
+        // Lưu đơn hàng lên Cloud Firestore (collection orders)
+        Map<String, Object> orderMap = new HashMap<>();
+        orderMap.put("orderCode", orderCode);
+        orderMap.put("userEmail", currentUser);
+        orderMap.put("receiverName", name);
+        orderMap.put("receiverPhone", phone);
+        orderMap.put("receiverAddress", address);
+        orderMap.put("receiverNote", note);
+        orderMap.put("paymentMethod", selectedPaymentMethod);
+        orderMap.put("totalPrice", totalFormatted);
+        orderMap.put("totalItems", totalItems);
+        orderMap.put("createdAt", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
+
+        FirebaseFirestore.getInstance().collection("orders").document(orderCode).set(orderMap);
 
         // Hiển thị hộp thoại tóm tắt đơn hàng
         String summary = "Cảm ơn " + name + " đã đặt hàng tại Tech Store!\n\n"
