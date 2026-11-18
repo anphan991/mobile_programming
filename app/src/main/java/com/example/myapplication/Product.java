@@ -1,5 +1,9 @@
 package com.example.myapplication;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Product {
 
     private String name;
@@ -76,5 +80,41 @@ public class Product {
 
     public void setInStock(boolean inStock) {
         this.inStock = inStock;
+    }
+
+    /** Đóng gói thuộc tính sản phẩm thành Map để lưu lên Cloud Firestore. */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("price", price);
+        map.put("category", category);
+        map.put("sku", sku);
+        map.put("description", description);
+        map.put("warranty", warranty);
+        map.put("detailedSpecs", detailedSpecs);
+        map.put("inStock", inStock);
+        return map;
+    }
+
+    /** Tái tạo đối tượng Product từ DocumentSnapshot tải về từ Cloud Firestore. */
+    public static Product fromFirestore(DocumentSnapshot doc) {
+        String name = doc.getString("name");
+        String desc = doc.getString("description");
+        String price = doc.getString("price");
+        String category = doc.getString("category");
+        String sku = doc.getString("sku");
+        String warranty = doc.getString("warranty");
+        String specs = doc.getString("detailedSpecs");
+        return new Product(
+                name != null ? name : "Sản phẩm",
+                desc != null ? desc : "",
+                price != null ? price : "0đ",
+                DatabaseHelper.getImageForProduct(name),
+                category != null ? category : "Thiết bị",
+                sku != null ? sku : doc.getId(),
+                warranty != null ? warranty : "",
+                specs != null ? specs : "",
+                Boolean.TRUE.equals(doc.getBoolean("inStock"))
+        );
     }
 }
