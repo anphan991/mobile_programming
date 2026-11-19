@@ -13,10 +13,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,6 +28,11 @@ import java.util.Locale;
 import java.util.Map;
 
 public class PaymentActivity extends AppCompatActivity {
+
+    public static final String EXTRA_PREFILL_NAME = "EXTRA_PREFILL_NAME";
+    public static final String EXTRA_PREFILL_PHONE = "EXTRA_PREFILL_PHONE";
+    public static final String EXTRA_PREFILL_ADDRESS = "EXTRA_PREFILL_ADDRESS";
+    public static final String EXTRA_PREFILL_NOTE = "EXTRA_PREFILL_NOTE";
 
     private EditText edtReceiverName, edtReceiverPhone, edtReceiverAddress, edtReceiverNote;
     private LinearLayout layoutCartItems, layoutPayCOD, layoutPayBank;
@@ -51,6 +59,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         // Ánh xạ View
         MaterialButton btnBack = findViewById(R.id.btnBack);
+        MaterialButton btnViewOrders = findViewById(R.id.btnViewOrders);
         edtReceiverName = findViewById(R.id.edtReceiverName);
         edtReceiverPhone = findViewById(R.id.edtReceiverPhone);
         edtReceiverAddress = findViewById(R.id.edtReceiverAddress);
@@ -69,11 +78,25 @@ public class PaymentActivity extends AppCompatActivity {
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder);
 
         btnBack.setOnClickListener(v -> finish());
+        if (btnViewOrders != null) {
+            btnViewOrders.setOnClickListener(v -> {
+                Intent intent = new Intent(PaymentActivity.this, OrderTrackingActivity.class);
+                startActivity(intent);
+            });
+        }
 
-        // Điền sẵn tên người dùng hiện tại
+        // Điền sẵn tên người dùng hiện tại hoặc thông tin từ đơn đặt lại
         SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUser = session.getString("CURRENT_USER", "admin");
-        edtReceiverName.setText(currentUser);
+        String prefillName = getIntent().getStringExtra(EXTRA_PREFILL_NAME);
+        String prefillPhone = getIntent().getStringExtra(EXTRA_PREFILL_PHONE);
+        String prefillAddress = getIntent().getStringExtra(EXTRA_PREFILL_ADDRESS);
+        String prefillNote = getIntent().getStringExtra(EXTRA_PREFILL_NOTE);
+
+        edtReceiverName.setText(prefillName != null && !prefillName.isEmpty() ? prefillName : currentUser);
+        if (prefillPhone != null && !prefillPhone.isEmpty()) edtReceiverPhone.setText(prefillPhone);
+        if (prefillAddress != null && !prefillAddress.isEmpty()) edtReceiverAddress.setText(prefillAddress);
+        if (prefillNote != null && !prefillNote.isEmpty()) edtReceiverNote.setText(prefillNote);
 
         // Đồng bộ giỏ hàng của tài khoản
         CartManager.syncForCurrentUser(this);
@@ -191,18 +214,86 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
 
-        // Sinh mã đơn hàng ngẫu nhiên
-        // thời gian thực của máy tính tính bằng mili-giây chia lấy dư cho 900.000 rồi cộng 100.000 (100000 đến 999999)
-        String orderCode = "ORD-" + (Math.abs(System.currentTimeMillis() % 900000L) + 100000L);
         String totalFormatted = CartManager.formatPrice(CartManager.getTotalPrice());
         int totalItems = CartManager.getTotalItemCount();
 
-        // Lưu đơn hàng vào SQLite (bảng orders)
+        StringBuilder itemsBuilder = new StringBuilder();
+        StringBuilder rawBuilder = new StringBuilder();
+        for (CartItem item : CartManager.cartList) {
+            if (itemsBuilder.length() > 0) itemsBuilder.append("\n");
+            long lineTotal = CartManager.parsePrice(item.getProduct().getPrice()) * item.getQuantity();
+            itemsBuilder.append("- ")
+                    .append(item.getProduct().getName())
+                    .append(" (x").append(item.getQuantity()).append(") - ")
+                    .append(CartManager.formatPrice(lineTotal));
+
+            if (rawBuilder.length() > 0) rawBuilder.append(";");
+            rawBuilder.append(item.getProduct().getSku()).append(":").append(item.getQuantity());
+        }
+        String itemsSummary = itemsBuilder.toString();
+        String itemsRaw = rawBuilder.toString();
+
+        showPreOrderConfirmDialog(name, phone, address, note, totalFormatted, totalItems, itemsSummary, itemsRaw);
+    }
+
+    private void showPreOrderConfirmDialog(String name, String phone, String address, String note,
+                                           String totalFormatted, int totalItems,
+                                           String itemsSummary, String itemsRaw) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_order_summary, null);
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvSubtitle = dialogView.findViewById(R.id.tvDialogSubtitle);
+        TextView tvReceiver = dialogView.findViewById(R.id.tvDialogReceiver);
+        TextView tvAddress = dialogView.findViewById(R.id.tvDialogAddress);
+        TextView tvNote = dialogView.findViewById(R.id.tvDialogNote);
+        TextView tvPayment = dialogView.findViewById(R.id.tvDialogPayment);
+        TextView tvItemsHeader = dialogView.findViewById(R.id.tvDialogItemsHeader);
+        TextView tvItems = dialogView.findViewById(R.id.tvDialogItems);
+        TextView tvTotal = dialogView.findViewById(R.id.tvDialogTotal);
+        MaterialButton btnNegative = dialogView.findViewById(R.id.btnDialogNegative);
+        MaterialButton btnPositive = dialogView.findViewById(R.id.btnDialogPositive);
+
+        tvTitle.setText("Xác nhận đặt hàng");
+        tvSubtitle.setText("Kiểm tra kỹ SĐT, địa chỉ và sản phẩm trước khi đặt");
+        tvReceiver.setText("Người nhận: " + name + " - " + phone);
+        tvAddress.setText("Địa chỉ: " + address);
+        if (!note.isEmpty()) {
+            tvNote.setVisibility(View.VISIBLE);
+            tvNote.setText("Ghi chú: " + note);
+        }
+        tvPayment.setText("Thanh toán: " + selectedPaymentMethod);
+        tvItemsHeader.setText("SẢN PHẨM ĐẶT MUA (" + totalItems + " món)");
+        tvItems.setText(itemsSummary);
+        tvTotal.setText(totalFormatted);
+
+        btnNegative.setText("Chỉnh sửa lại");
+        btnPositive.setText("Xác nhận đặt hàng");
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        btnNegative.setOnClickListener(v -> dialog.dismiss());
+        btnPositive.setOnClickListener(v -> {
+            dialog.dismiss();
+            finalizeOrder(name, phone, address, note, totalFormatted, totalItems, itemsSummary, itemsRaw);
+        });
+        dialog.show();
+    }
+
+    private void finalizeOrder(String name, String phone, String address, String note,
+                               String totalFormatted, int totalItems,
+                               String itemsSummary, String itemsRaw) {
+        String orderCode = "ORD-" + (Math.abs(System.currentTimeMillis() % 900000L) + 100000L);
+
         SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUser = session.getString("CURRENT_USER", "admin");
-        new DatabaseHelper(this).insertOrder(orderCode, currentUser, name, phone, address, note, selectedPaymentMethod, totalFormatted, totalItems);
+        new DatabaseHelper(this).insertOrder(orderCode, currentUser, name, phone, address, note,
+                selectedPaymentMethod, totalFormatted, totalItems, itemsSummary, itemsRaw);
 
-        // Lưu đơn hàng lên Cloud Firestore (collection orders)
         Map<String, Object> orderMap = new HashMap<>();
         orderMap.put("orderCode", orderCode);
         orderMap.put("userEmail", currentUser);
@@ -213,32 +304,86 @@ public class PaymentActivity extends AppCompatActivity {
         orderMap.put("paymentMethod", selectedPaymentMethod);
         orderMap.put("totalPrice", totalFormatted);
         orderMap.put("totalItems", totalItems);
+        orderMap.put("itemsSummary", itemsSummary);
+        orderMap.put("itemsRaw", itemsRaw);
+        orderMap.put("cancelReason", "");
+        orderMap.put("statusStep", Order.STEP_PROCESSING);
+        orderMap.put("status", Order.getStepTitle(Order.STEP_PROCESSING));
         orderMap.put("createdAt", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(new Date()));
 
         FirebaseFirestore.getInstance().collection("orders").document(orderCode).set(orderMap);
 
-        // Hiển thị hộp thoại tóm tắt đơn hàng
-        String summary = "Cảm ơn " + name + " đã đặt hàng tại Tech Store!\n\n"
-                + "• Mã đơn hàng: #" + orderCode + "\n"
-                + "• Số lượng: " + totalItems + " sản phẩm\n"
-                + "• Người nhận: " + name + " - " + phone + "\n"
-                + "• Địa chỉ: " + address + "\n"
-                + (note.isEmpty() ? "" : "• Ghi chú: " + note + "\n")
-                + "• Thanh toán: " + selectedPaymentMethod + "\n"
-                + "• Tổng tiền: " + totalFormatted + "\n\n"
-                + "Đơn hàng của bạn đang được đóng gói và bàn giao cho đơn vị vận chuyển.";
+        CartManager.clearCart();
+        renderCartItems();
 
-        new AlertDialog.Builder(this)
-                .setTitle("Đặt hàng thành công")
-                .setMessage(summary)
+        showOrderSuccessDialog(orderCode, name, phone, address, note, totalFormatted, totalItems, itemsSummary);
+    }
+
+    private void showOrderSuccessDialog(String orderCode, String name, String phone, String address,
+                                        String note, String totalFormatted, int totalItems, String itemsSummary) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_order_summary, null);
+        MaterialCardView cardIcon = dialogView.findViewById(R.id.cardDialogIcon);
+        ImageView imgIcon = dialogView.findViewById(R.id.imgDialogIcon);
+        TextView tvTitle = dialogView.findViewById(R.id.tvDialogTitle);
+        TextView tvSubtitle = dialogView.findViewById(R.id.tvDialogSubtitle);
+        TextView tvBadge = dialogView.findViewById(R.id.tvDialogBadge);
+        TextView tvReceiver = dialogView.findViewById(R.id.tvDialogReceiver);
+        TextView tvAddress = dialogView.findViewById(R.id.tvDialogAddress);
+        TextView tvNote = dialogView.findViewById(R.id.tvDialogNote);
+        TextView tvPayment = dialogView.findViewById(R.id.tvDialogPayment);
+        TextView tvItemsHeader = dialogView.findViewById(R.id.tvDialogItemsHeader);
+        TextView tvItems = dialogView.findViewById(R.id.tvDialogItems);
+        TextView tvTotal = dialogView.findViewById(R.id.tvDialogTotal);
+        MaterialButton btnNegative = dialogView.findViewById(R.id.btnDialogNegative);
+        MaterialButton btnPositive = dialogView.findViewById(R.id.btnDialogPositive);
+
+        int successColor = ContextCompat.getColor(this, R.color.success);
+        cardIcon.setCardBackgroundColor(0xFFDCFCE7);
+        imgIcon.setColorFilter(successColor);
+
+        tvTitle.setText("Đặt hàng thành công");
+        tvSubtitle.setText("Cảm ơn " + name + " đã đặt hàng tại Tech Store");
+        tvBadge.setVisibility(View.VISIBLE);
+        tvBadge.setText("Mã đơn: #" + orderCode + " - " + Order.getStepTitle(Order.STEP_PROCESSING));
+        tvBadge.setBackgroundResource(R.drawable.bg_badge_success);
+        tvBadge.setTextColor(successColor);
+
+        tvReceiver.setText("Người nhận: " + name + " - " + phone);
+        tvAddress.setText("Địa chỉ: " + address);
+        if (!note.isEmpty()) {
+            tvNote.setVisibility(View.VISIBLE);
+            tvNote.setText("Ghi chú: " + note);
+        }
+        tvPayment.setText("Thanh toán: " + selectedPaymentMethod);
+        tvItemsHeader.setText("SẢN PHẨM ĐÃ ĐẶT (" + totalItems + " món)");
+        tvItems.setText(itemsSummary);
+        tvTotal.setText(totalFormatted);
+
+        btnNegative.setText("Về trang chủ");
+        btnPositive.setText("Xem chi tiết đơn");
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
                 .setCancelable(false)
-                .setPositiveButton("Về trang chủ", (dialog, which) -> {
-                    CartManager.clearCart();
-                    Intent intent = new Intent(PaymentActivity.this, ProductListActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                })
-                .show();
+                .create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        btnNegative.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent = new Intent(PaymentActivity.this, ProductListActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
+        btnPositive.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent = new Intent(PaymentActivity.this, OrderDetailActivity.class);
+            intent.putExtra(OrderDetailActivity.EXTRA_ORDER_CODE, orderCode);
+            startActivity(intent);
+            finish();
+        });
+        dialog.show();
     }
 }

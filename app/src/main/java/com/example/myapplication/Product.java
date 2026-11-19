@@ -47,7 +47,7 @@ public class Product {
     }
 
     public String getDescription() {
-        return description;
+        return description != null ? description.replace(" · ", " - ").replace(" • ", " - ") : "";
     }
 
     public String getPrice() {
@@ -78,6 +78,15 @@ public class Product {
         return inStock;
     }
 
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPrice(String price) { this.price = price; }
+    public void setImageResId(int imageResId) { this.imageResId = imageResId; }
+    public void setCategory(String category) { this.category = category; }
+    public void setSku(String sku) { this.sku = sku; }
+    public void setWarranty(String warranty) { this.warranty = warranty; }
+    public void setDetailedSpecs(String detailedSpecs) { this.detailedSpecs = detailedSpecs; }
+
     public void setInStock(boolean inStock) {
         this.inStock = inStock;
     }
@@ -105,12 +114,14 @@ public class Product {
         String sku = doc.getString("sku");
         String warranty = doc.getString("warranty");
         String specs = doc.getString("detailedSpecs");
+        String resolvedCat = category != null ? category : "Thiết bị";
+        String normalizedDesc = desc != null ? desc.replace(" · ", " - ").replace(" • ", " - ") : "";
         return new Product(
                 name != null ? name : "Sản phẩm",
-                desc != null ? desc : "",
+                normalizedDesc,
                 price != null ? price : "0đ",
-                DatabaseHelper.getImageForProduct(name),
-                category != null ? category : "Thiết bị",
+                DatabaseHelper.getImageForProduct(name, resolvedCat),
+                resolvedCat,
                 sku != null ? sku : doc.getId(),
                 warranty != null ? warranty : "",
                 specs != null ? specs : "",

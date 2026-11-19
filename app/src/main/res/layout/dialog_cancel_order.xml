@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="6dp"
+    app:strokeColor="@color/border"
+    app:strokeWidth="1dp"
+    tools:ignore="HardcodedText,TouchTargetSizeCheck">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:cardBackgroundColor="#FEE2E2"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Hủy đơn hàng"
+                        android:src="@drawable/ic_close_24"
+                        app:tint="@color/danger" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvCancelDialogTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hủy đơn hàng"
+                        android:textColor="@color/ink"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCancelDialogSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Chọn lý do hủy đơn hàng"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12.5sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:letterSpacing="0.05"
+                android:text="LÝ DO HỦY ĐƠN"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgCancelReasons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/rbReason1"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:checked="true"
+                    android:text="Lý do 1"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp" />
+
+                <RadioButton
+                    android:id="@+id/rbReason2"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="Lý do 2"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp" />
+
+                <RadioButton
+                    android:id="@+id/rbReason3"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="Lý do 3"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp" />
+
+                <RadioButton
+                    android:id="@+id/rbReason4"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="Lý do 4"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp" />
+
+                <RadioButton
+                    android:id="@+id/rbReasonOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="Lý do khác (nhập bên dưới)"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp" />
+            </RadioGroup>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCustomCancelReason"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Ghi chú hoặc nhập lý do cụ thể (Tùy chọn)"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtCustomCancelReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:maxLines="3"
+                    android:textSize="13.5sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelKeep"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:text="Giữ lại đơn"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ink"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/surface"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/border_strong"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelConfirm"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1.2"
+                    android:minHeight="48dp"
+                    android:text="Xác nhận hủy đơn"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/danger"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</com.google.android.material.card.MaterialCardView>

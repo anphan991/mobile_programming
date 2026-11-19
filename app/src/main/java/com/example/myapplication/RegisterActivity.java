@@ -1,142 +1,117 @@
 package com.example.myapplication;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RegisterActivity extends AppCompatActivity {
+    private TextInputLayout tilRegUser, tilRegPass, tilRegConfirmPass;
     private EditText edtRegUser, edtRegPass, edtRegConfirmPass;
-    private ImageView btnToggleRegPass, btnToggleRegConfirmPass;
     private Button btnRegister;
     private TextView tvBackToLogin;
-    private boolean isPassVisible = false;
-    private boolean isConfirmVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_register);
 
-        // Xử lý WindowInsets tránh chồng lấp thanh trạng thái
+        // Xử lý WindowInsets tránh chồng lấp thanh trạng thái nhưng vẫn giữ nền xanh tràn lên trên
         View rootView = findViewById(R.id.rootRegister);
-        if (rootView != null) {
+        View authHeader = findViewById(R.id.authHeader);
+        if (rootView != null && authHeader != null) {
+            final int headerBaseTop = authHeader.getPaddingTop();
             final int baseLeft = rootView.getPaddingLeft();
-            final int baseTop = rootView.getPaddingTop();
             final int baseRight = rootView.getPaddingRight();
             final int baseBottom = rootView.getPaddingBottom();
             ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
                 Insets bars = insets.getInsets(
                         WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
                 );
-                v.setPadding(baseLeft + bars.left, baseTop + bars.top, baseRight + bars.right, baseBottom + bars.bottom);
+                authHeader.setPadding(authHeader.getPaddingLeft(), headerBaseTop + bars.top, authHeader.getPaddingRight(), authHeader.getPaddingBottom());
+                v.setPadding(baseLeft + bars.left, 0, baseRight + bars.right, baseBottom + bars.bottom);
                 return insets;
             });
         }
 
-        // ánh xạ View
+        // Ánh xạ View
+        tilRegUser = findViewById(R.id.tilRegUser);
+        tilRegPass = findViewById(R.id.tilRegPass);
+        tilRegConfirmPass = findViewById(R.id.tilRegConfirmPass);
         edtRegUser = findViewById(R.id.edtRegUser);
         edtRegPass = findViewById(R.id.edtRegPass);
         edtRegConfirmPass = findViewById(R.id.edtRegConfirmPass);
-        btnToggleRegPass = findViewById(R.id.btnToggleRegPass);
-        btnToggleRegConfirmPass = findViewById(R.id.btnToggleRegConfirmPass);
         btnRegister = findViewById(R.id.btnRegister);
         tvBackToLogin = findViewById(R.id.tvBackToLogin);
 
-        // ẩn/hiện mật khẩu chính
-        btnToggleRegPass.setOnClickListener(v -> {
-            if (isPassVisible) {
-                edtRegPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                btnToggleRegPass.setAlpha(0.45f);
-                isPassVisible = false;
-            } else {
-                edtRegPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                btnToggleRegPass.setAlpha(1.0f);
-                isPassVisible = true;
-            }
-            edtRegPass.setSelection(edtRegPass.getText().length());
-        });
+        // Quay lại màn hình đăng nhập
+        tvBackToLogin.setOnClickListener(v -> finish());
 
-        // ẩn/hiện ô xác nhận mật khẩu
-        btnToggleRegConfirmPass.setOnClickListener(v -> {
-            if (isConfirmVisible) {
-                edtRegConfirmPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                btnToggleRegConfirmPass.setAlpha(0.45f);
-                isConfirmVisible = false;
-            } else {
-                edtRegConfirmPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                btnToggleRegConfirmPass.setAlpha(1.0f);
-                isConfirmVisible = true;
-            }
-            edtRegConfirmPass.setSelection(edtRegConfirmPass.getText().length());
-        });
-
-        // sự kiện Quay lại Đăng nhập
-        tvBackToLogin.setOnClickListener(v -> {
-            finish();
-        });
-
-        // sự kiện ĐĂNG KÝ
+        // Sự kiện Đăng ký
         btnRegister.setOnClickListener(v -> {
-            // input và .trim() để cắt khoảng trắng thừa 2 đầu
-            String user = edtRegUser.getText().toString().trim();
-            String pass = edtRegPass.getText().toString().trim();
-            String confirmPass = edtRegConfirmPass.getText().toString().trim();
+            tilRegUser.setError(null);
+            tilRegPass.setError(null);
+            tilRegConfirmPass.setError(null);
 
-            // 1 trong 3 ô trống
-            if (user.isEmpty() || pass.isEmpty() || confirmPass.isEmpty()) {
-                Toast.makeText(this, "Vui lòng điền đầy đủ các ô!", Toast.LENGTH_SHORT).show();
-                return; // Dừng hàm
-            }
+            String user = edtRegUser.getText() != null ? edtRegUser.getText().toString().trim() : "";
+            String pass = edtRegPass.getText() != null ? edtRegPass.getText().toString().trim() : "";
+            String confirmPass = edtRegConfirmPass.getText() != null ? edtRegConfirmPass.getText().toString().trim() : "";
 
-            // xác nhận trùng với mật khẩu
-            if (!pass.equals(confirmPass)) {
-                Toast.makeText(this, "Mật khẩu xác nhận không khớp!", Toast.LENGTH_SHORT).show();
+            if (user.isEmpty()) {
+                tilRegUser.setError("Vui lòng nhập Email!");
                 return;
             }
-
-            // ràng buộc của Firebase: password tối thiểu 6 ký tự
             if (pass.length() < 6) {
-                Toast.makeText(this, "Mật khẩu phải từ 6 ký tự trở lên!", Toast.LENGTH_SHORT).show();
+                tilRegPass.setError("Mật khẩu phải từ 6 ký tự trở lên!");
+                return;
+            }
+            if (!pass.equals(confirmPass)) {
+                tilRegConfirmPass.setError("Mật khẩu xác nhận không khớp!");
                 return;
             }
 
-            // chuẩn hóa Email cho Firebase
             String email = user.contains("@") ? user : user + "@gmail.com";
+            DatabaseHelper dbHelper = new DatabaseHelper(this);
 
-            // gọi SDK Firebase Authentication để tạo tài khoản trên máy chủ Google
+            // Kiểm tra tài khoản tồn tại ngay lập tức trong SQLite cục bộ
+            if (dbHelper.checkUserExists(user) || dbHelper.checkUserExists(email)) {
+                tilRegUser.setError("Tài khoản này đã tồn tại!");
+                return;
+            }
+
+            // Lưu ngay vào SQLite để tài khoản dùng được lập tức kể cả khi offline
+            dbHelper.registerUser(user, pass);
+
+            // Đồng bộ lên Firebase Auth với giới hạn timeout 2.5 giây
+            btnRegister.setEnabled(false);
+            btnRegister.setText("Đang tạo tài khoản...");
+
+            AtomicBoolean completed = new AtomicBoolean(false);
+            Handler timeoutHandler = new Handler(Looper.getMainLooper());
+            Runnable finishRegistration = () -> {
+                if (completed.compareAndSet(false, true) && !isFinishing() && !isDestroyed()) {
+                    Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            };
+            timeoutHandler.postDelayed(finishRegistration, 2500);
+
             FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, pass)
-                    // addOnCompleteListener: đăng ký một Listener bất đồng bộ (chờ phản hồi mạng từ Google)
                     .addOnCompleteListener(this, task -> {
-                        // true khi Google đã tạo xong User và cấp UID
-                        if (task.isSuccessful()) {
-                            // lưu dự phòng vào SQLite
-                            DatabaseHelper dbHelper = new DatabaseHelper(this);
-                            if (!dbHelper.checkUserExists(user)) {
-                                dbHelper.registerUser(user, pass);
-                            }
-
-                            Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            // lấy thông báo lỗi từ Firebase
-                            String error = task.getException() != null ? task.getException().getMessage() : "Đăng ký thất bại!";
-                            Toast.makeText(this, "Lỗi: " + error, Toast.LENGTH_LONG).show();
-                        }
+                        timeoutHandler.removeCallbacks(finishRegistration);
+                        finishRegistration.run();
                     });
         });
     }
 }
-

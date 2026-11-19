@@ -47,6 +47,18 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".OrderTrackingActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OrderDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

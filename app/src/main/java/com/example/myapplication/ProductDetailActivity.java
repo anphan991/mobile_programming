@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -77,12 +78,39 @@ public class ProductDetailActivity extends AppCompatActivity {
         // Đồng bộ giỏ hàng theo tài khoản đang đăng nhập
         CartManager.syncForCurrentUser(this);
 
+        SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
+        String currentUser = session.getString("CURRENT_USER", "");
+        boolean isAdmin = new DatabaseHelper(this).isAdminUser(currentUser);
+        View layoutAdminActions = findViewById(R.id.layoutAdminProductActions);
+        if (layoutAdminActions != null) {
+            layoutAdminActions.setVisibility(isAdmin ? View.VISIBLE : View.GONE);
+        }
+
         // Nhận vị trí sản phẩm được chọn từ ProductListActivity
         currentIndex = getIntent().getIntExtra(KEY_INDEX, 0);
         if (currentIndex < 0 || currentIndex >= ProductListActivity.productList.size()) {
             currentIndex = 0;
         }
         showProduct(currentIndex);
+
+        View btnEditProd = findViewById(R.id.btnDetailEditProduct);
+        if (btnEditProd != null) {
+            btnEditProd.setOnClickListener(v -> {
+                if (isAdmin && currentIndex >= 0 && currentIndex < ProductListActivity.productList.size()) {
+                    Product current = ProductListActivity.productList.get(currentIndex);
+                    ProductEditorHelper.showProductEditor(this, current, () -> showProduct(currentIndex));
+                }
+            });
+        }
+        View btnDeleteProd = findViewById(R.id.btnDetailDeleteProduct);
+        if (btnDeleteProd != null) {
+            btnDeleteProd.setOnClickListener(v -> {
+                if (isAdmin && currentIndex >= 0 && currentIndex < ProductListActivity.productList.size()) {
+                    Product current = ProductListActivity.productList.get(currentIndex);
+                    ProductEditorHelper.confirmDeleteProduct(this, current, this::finish);
+                }
+            });
+        }
 
         // Nút quay lại danh sách
         btnBackToList.setOnClickListener(v -> finish());
@@ -163,7 +191,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 tvDetailSpecs.setText(product.getDetailedSpecs());
             }
             if (tvDetailSubtitle != null) {
-                tvDetailSubtitle.setText(product.getCategory() + " · Mã " + product.getSku());
+                tvDetailSubtitle.setText(product.getCategory() + " - Mã " + product.getSku());
             }
 
             boolean hasPrevious = index > 0;

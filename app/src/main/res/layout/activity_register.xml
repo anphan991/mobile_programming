@@ -7,58 +7,88 @@
     android:layout_height="match_parent"
     android:background="@color/screen_background"
     android:fillViewport="true"
-    android:fitsSystemWindows="true"
     android:overScrollMode="never"
     tools:ignore="HardcodedText,TextContrastCheck">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="24dp"
-        android:paddingTop="28dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="28dp">
+        android:paddingBottom="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Header Obsidian-Indigo -->
+        <LinearLayout
+            android:id="@+id/authHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_badge_primary"
-            android:letterSpacing="0.1"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="Test STORE"
-            android:textColor="@color/primary_dark"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:background="@drawable/bg_auth_top_header"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="32dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="72dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Tạo tài khoản mới"
-            android:textColor="@color/ink"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="58dp"
+                android:layout_height="58dp"
+                app:cardBackgroundColor="#24FFFFFF"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#4DFFFFFF"
+                app:strokeWidth="1dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="24dp"
-            android:text="Đăng ký thông tin để lưu tài khoản trên thiết bị."
-            android:textColor="@color/text_secondary"
-            android:textSize="13.5sp" />
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Logo cửa hàng"
+                    android:src="@drawable/ic_store_24" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="#2606B6D4"
+                android:letterSpacing="0.12"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="THÀNH VIÊN MỚI"
+                android:textColor="#67E8F9"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Tạo tài khoản mới"
+                android:textColor="@color/white"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="Lưu giỏ hàng và đồng bộ đơn mua hàng mọi lúc"
+                android:textColor="#BFDBFE"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="-50dp"
+            android:layout_marginEnd="22dp"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="26dp"
+            app:cardElevation="8dp"
             app:strokeColor="@color/border"
             app:strokeWidth="1dp">
 
@@ -66,140 +96,130 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="22dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Email"
-                    android:textColor="@color/ink"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/edtRegUser"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRegUser"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Nhập địa chỉ email"
-                    android:importantForAutofill="no"
-                    android:inputType="textEmailAddress"
-                    android:paddingStart="14dp"
-                    android:paddingEnd="14dp"
-                    android:textColor="@color/ink"
-                    android:textColorHint="@color/text_tertiary"
-                    android:textSize="14.5sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Mật khẩu"
-                    android:textColor="@color/ink"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:layout_marginBottom="14dp"
+                    android:hint="Địa chỉ Email"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:endIconMode="clear_text"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_email_24"
+                    app:startIconTint="@color/primary">
 
-                <RelativeLayout
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtRegUser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:importantForAutofill="no"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@color/ink"
+                        android:textSize="14.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRegPass"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:hint="Mật khẩu (tối thiểu 6 ký tự)"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/text_secondary"
+                    app:errorIconDrawable="@null"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_lock_24"
+                    app:startIconTint="@color/primary">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtRegPass"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_input"
-                        android:hint="Tạo mật khẩu"
+                        android:layout_height="wrap_content"
+                        android:importantForAutofill="no"
                         android:inputType="textPassword"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="48dp"
                         android:textColor="@color/ink"
-                        android:textColorHint="@color/text_tertiary"
                         android:textSize="14.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <ImageView
-                        android:id="@+id/btnToggleRegPass"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginEnd="1dp"
-                        android:alpha="0.45"
-                        android:contentDescription="Hiện hoặc ẩn mật khẩu"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_eye_24"
-                        tools:ignore="TouchTargetSizeCheck" />
-                </RelativeLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="Xác nhận mật khẩu"
-                    android:textColor="@color/ink"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <RelativeLayout
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilRegConfirmPass"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="22dp">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:hint="Xác nhận mật khẩu"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/text_secondary"
+                    app:errorIconDrawable="@null"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_lock_24"
+                    app:startIconTint="@color/primary">
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtRegConfirmPass"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_input"
-                        android:hint="Nhập lại mật khẩu"
+                        android:layout_height="wrap_content"
+                        android:importantForAutofill="no"
                         android:inputType="textPassword"
-                        android:paddingStart="14dp"
-                        android:paddingEnd="48dp"
                         android:textColor="@color/ink"
-                        android:textColorHint="@color/text_tertiary"
                         android:textSize="14.5sp" />
-
-                    <ImageView
-                        android:id="@+id/btnToggleRegConfirmPass"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginEnd="1dp"
-                        android:alpha="0.45"
-                        android:contentDescription="Hiện hoặc ẩn mật khẩu xác nhận"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_eye_24"
-                        tools:ignore="TouchTargetSizeCheck" />
-                </RelativeLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="54dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:text="Hoàn tất đăng ký"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="15sp"
+                    android:textSize="15.5sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/primary"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="16dp"
+                    app:icon="@drawable/ic_arrow_right_24"
+                    app:iconGravity="textEnd"
+                    app:iconPadding="8dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/tvBackToLogin"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Đã có tài khoản? Quay lại đăng nhập"
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="14dp"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="1.2dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:id="@+id/tvBackToLogin"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:text="Đã có tài khoản? Quay lại đăng nhập"
-            android:textColor="@color/primary_dark"
-            android:textSize="13.5sp"
-            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

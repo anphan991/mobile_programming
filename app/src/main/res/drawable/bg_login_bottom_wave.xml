@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="110dp"
+    android:viewportWidth="360"
+    android:viewportHeight="110">
+
+    <!-- Sóng mềm tầng sau (Cyan mờ) -->
+    <path
+        android:fillColor="#1A06B6D4"
+        android:pathData="M0,44 C90,10 180,75 270,38 C315,20 340,24 360,32 L360,110 L0,110 Z" />
+
+    <!-- Sóng mềm tầng giữa (Cobalt Blue mờ) -->
+    <path
+        android:fillColor="#1C2563EB"
+        android:pathData="M0,64 C80,92 175,30 265,62 C310,78 340,68 360,56 L360,110 L0,110 Z" />
+
+    <!-- Sóng nhấn tầng đáy (Royal Blue) -->
+    <path
+        android:fillColor="#241D4ED8"
+        android:pathData="M0,86 C110,64 230,104 360,76 L360,110 L0,110 Z" />
+
+    <!-- Điểm nhấn hình học công nghệ tối giản -->
+    <path
+        android:fillColor="#402563EB"
+        android:pathData="M44,30 A4,4 0 1,1 44,29.9 Z" />
+    <path
+        android:fillColor="#4006B6D4"
+        android:pathData="M312,24 A3.5,3.5 0 1,1 312,23.9 Z" />
+    <path
+        android:fillColor="#301D4ED8"
+        android:pathData="M182,42 A2.5,2.5 0 1,1 182,41.9 Z" />
+</vector>

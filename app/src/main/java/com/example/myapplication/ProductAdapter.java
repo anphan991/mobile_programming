@@ -1,58 +1,86 @@
 package com.example.myapplication;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 
-// kết nối đối tượng Product với giao diện item_product.xml
-public class ProductAdapter extends ArrayAdapter<Product> {
+// Kết nối danh sách Product với giao diện thẻ Bento Grid (item_product.xml)
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
-    public ProductAdapter(@NonNull Context context, @NonNull List<Product> productList) {
-        super(context, 0, productList);
+    public interface OnProductActionListener {
+        void onProductClick(Product product);
+        void onQuickAddCart(Product product);
+    }
+
+    private final List<Product> productList;
+    private final OnProductActionListener listener;
+
+    public ProductAdapter(@NonNull List<Product> productList, @NonNull OnProductActionListener listener) {
+        this.productList = productList;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
+        return new ViewHolder(view);
+    }
 
-        // nạp giao diện item_product.xml nếu dòng chưa được tạo
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.item_product, parent, false);
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Product product = productList.get(position);
+        holder.imgProduct.setImageResource(product.getImageResId());
+        holder.tvCategory.setText(product.getCategory());
+        holder.tvName.setText(product.getName());
+        holder.tvDesc.setText(product.getDescription());
+        holder.tvPrice.setText(product.getPrice());
+
+        boolean inStock = product.isInStock();
+        holder.tvOutOfStock.setVisibility(inStock ? View.GONE : View.VISIBLE);
+
+        // Nút + thêm nhanh vào giỏ (làm mờ và vô hiệu hóa nếu hết hàng)
+        holder.btnQuickAdd.setEnabled(inStock);
+        holder.btnQuickAdd.setAlpha(inStock ? 1.0f : 0.35f);
+        holder.cardQuickAddBg.setCardBackgroundColor(ContextCompat.getColor(
+                holder.itemView.getContext(),
+                inStock ? R.color.primary : R.color.text_tertiary
+        ));
+
+        holder.itemView.setOnClickListener(v -> listener.onProductClick(product));
+        holder.btnQuickAdd.setOnClickListener(v -> {
+            if (inStock) listener.onQuickAddCart(product);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return productList.size();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        final ImageView imgProduct;
+        final TextView tvCategory, tvName, tvDesc, tvPrice, tvOutOfStock;
+        final View btnQuickAdd;
+        final MaterialCardView cardQuickAddBg;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imgProduct = itemView.findViewById(R.id.imgProduct);
+            tvCategory = itemView.findViewById(R.id.tvProductCategory);
+            tvName = itemView.findViewById(R.id.tvProductName);
+            tvDesc = itemView.findViewById(R.id.tvProductDesc);
+            tvPrice = itemView.findViewById(R.id.tvProductPrice);
+            tvOutOfStock = itemView.findViewById(R.id.tvItemOutOfStockBadge);
+            btnQuickAdd = itemView.findViewById(R.id.btnQuickAddCart);
+            cardQuickAddBg = itemView.findViewById(R.id.cardQuickAddBg);
         }
-
-        // lấy sản phẩm ở vị trí hiện tại
-        Product currentProduct = getItem(position);
-
-        // ánh xạ các view trong item_product.xml
-        ImageView imgProduct = convertView.findViewById(R.id.imgProduct);
-        TextView tvCategory = convertView.findViewById(R.id.tvProductCategory);
-        TextView tvName = convertView.findViewById(R.id.tvProductName);
-        TextView tvDesc = convertView.findViewById(R.id.tvProductDesc);
-        TextView tvPrice = convertView.findViewById(R.id.tvProductPrice);
-        TextView tvOutOfStock = convertView.findViewById(R.id.tvItemOutOfStockBadge);
-
-        // gán dữ liệu vào từng ô
-        if (currentProduct != null) {
-            imgProduct.setImageResource(currentProduct.getImageResId());
-            if (tvCategory != null) {
-                tvCategory.setText(currentProduct.getCategory());
-            }
-            if (tvOutOfStock != null) {
-                tvOutOfStock.setVisibility(currentProduct.isInStock() ? View.GONE : View.VISIBLE);
-            }
-            tvName.setText(currentProduct.getName());
-            tvDesc.setText(currentProduct.getDescription());
-            tvPrice.setText(currentProduct.getPrice());
-        }
-
-        return convertView;
     }
 }

@@ -3,7 +3,16 @@
     <style name="Base.Theme.MyApplication" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primary_soft</item>
+        <item name="colorOnPrimaryContainer">@color/primary_dark</item>
+        <item name="colorSecondaryContainer">@color/primary_soft</item>
+        <item name="colorOnSecondaryContainer">@color/primary_dark</item>
         <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/ink</item>
+        <item name="colorSurfaceVariant">@color/surface_subtle</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/border_strong</item>
+        <item name="elevationOverlayEnabled">false</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/screen_background</item>
@@ -13,4 +22,9 @@
     </style>
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
+
+    <style name="ShapeAppearance.App.RoundedImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
 </resources>

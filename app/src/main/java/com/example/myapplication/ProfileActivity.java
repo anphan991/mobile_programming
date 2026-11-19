@@ -55,9 +55,11 @@ public class ProfileActivity extends AppCompatActivity {
         TextView tvProfileRoleBadge = findViewById(R.id.tvProfileRoleBadge);
         TextView tvProfileUserValue = findViewById(R.id.tvProfileUserValue);
         TextView tvProfileIdValue = findViewById(R.id.tvProfileIdValue);
+        TextView tvProfilePermissions = findViewById(R.id.tvProfilePermissions);
 
         MaterialButton btnBack = findViewById(R.id.btnBack);
         MaterialButton btnBackToListBottom = findViewById(R.id.btnBackToListBottom);
+        MaterialButton btnProfileAdmin = findViewById(R.id.btnProfileAdmin);
         Button btnLogoutProfile = findViewById(R.id.btnLogoutProfile);
 
         // Gán dữ liệu hồ sơ
@@ -68,14 +70,25 @@ public class ProfileActivity extends AppCompatActivity {
         tvProfileUsername.setText(username);
         tvProfileUserValue.setText(username);
 
-        boolean isAdmin = "admin".equalsIgnoreCase(username);
+        boolean isAdmin = new DatabaseHelper(this).isAdminUser(username);
         if (isAdmin) {
             tvProfileRoleBadge.setText("Quản trị viên");
             tvProfileIdValue.setText("USR-ADMIN");
+            if (tvProfilePermissions != null) {
+                tvProfilePermissions.setText("• Thêm, sửa giá, chỉnh sửa và xóa sản phẩm\n• Xem và cập nhật trạng thái toàn bộ đơn hàng\n• Quản lý tài khoản người dùng (thêm, sửa, xóa, phân quyền)");
+            }
+            if (btnProfileAdmin != null) {
+                btnProfileAdmin.setVisibility(View.VISIBLE);
+                btnProfileAdmin.setOnClickListener(v -> startActivity(
+                        new Intent(ProfileActivity.this, AdminDashboardActivity.class)));
+            }
         } else {
             tvProfileRoleBadge.setText("Thành viên chính thức");
             int uniqueId = Math.abs(username.hashCode()) % 900 + 100;
             tvProfileIdValue.setText("USR-" + uniqueId);
+            if (btnProfileAdmin != null) {
+                btnProfileAdmin.setVisibility(View.GONE);
+            }
         }
 
         // Sự kiện quay lại danh sách sản phẩm

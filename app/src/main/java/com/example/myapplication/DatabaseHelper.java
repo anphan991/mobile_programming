@@ -13,7 +13,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechStore.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 6;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -25,7 +25,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS users ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, " //khóa chính tự tăng
                 + "username TEXT UNIQUE, " //ràng buộc username
-                + "password TEXT)");
+                + "password TEXT, "
+                + "role TEXT DEFAULT 'user')");
+        ensureUsersRoleColumn(db);
 
         //bảng sản phẩm
         db.execSQL("CREATE TABLE IF NOT EXISTS products ("
@@ -38,7 +40,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "order_code TEXT UNIQUE, username TEXT, receiver_name TEXT, "
                 + "receiver_phone TEXT, receiver_address TEXT, receiver_note TEXT, "
-                + "payment_method TEXT, total_price TEXT, item_count INTEGER, created_at TEXT)");
+                + "payment_method TEXT, total_price TEXT, item_count INTEGER, created_at TEXT, "
+                + "status_step INTEGER DEFAULT 0, items_summary TEXT DEFAULT '', "
+                + "cancel_reason TEXT DEFAULT '', items_raw TEXT DEFAULT '')");
+        ensureOrdersStatusColumn(db);
 
         //bảng giỏ hàng riêng cho từng tài khoản
         db.execSQL("CREATE TABLE IF NOT EXISTS cart_items ("
@@ -50,7 +55,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues admin = new ContentValues();
         admin.put("username", "admin");
         admin.put("password", "123456");
+        admin.put("role", UserAccount.ROLE_ADMIN);
         db.insertWithOnConflict("users", null, admin, SQLiteDatabase.CONFLICT_IGNORE);
+        db.execSQL("UPDATE users SET role = 'admin' WHERE LOWER(username) = 'admin'");
 
         // Nạp sẵn 12 sản phẩm vào SQLite
         seedDefaultProducts(db);
@@ -66,6 +73,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
         onCreate(db);
+    }
+
+    private void ensureUsersRoleColumn(SQLiteDatabase db) {
+        Cursor c = db.rawQuery("PRAGMA table_info(users)", null);
+        boolean hasRole = false;
+        try {
+            int nameIdx = c.getColumnIndex("name");
+            while (c.moveToNext()) {
+                if (nameIdx >= 0 && "role".equals(c.getString(nameIdx))) {
+                    hasRole = true;
+                    break;
+                }
+            }
+        } finally {
+            c.close();
+        }
+        if (!hasRole) {
+            db.execSQL("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+        }
+    }
+
+    private void ensureOrdersStatusColumn(SQLiteDatabase db) {
+        Cursor c = db.rawQuery("PRAGMA table_info(orders)", null);
+        boolean hasStatusStep = false;
+        boolean hasItemsSummary = false;
+        boolean hasCancelReason = false;
+        boolean hasItemsRaw = false;
+        try {
+            int nameIdx = c.getColumnIndex("name");
+            while (c.moveToNext()) {
+                if (nameIdx >= 0) {
+                    String colName = c.getString(nameIdx);
+                    if ("status_step".equals(colName)) hasStatusStep = true;
+                    if ("items_summary".equals(colName)) hasItemsSummary = true;
+                    if ("cancel_reason".equals(colName)) hasCancelReason = true;
+                    if ("items_raw".equals(colName)) hasItemsRaw = true;
+                }
+            }
+        } finally {
+            c.close();
+        }
+        if (!hasStatusStep) {
+            db.execSQL("ALTER TABLE orders ADD COLUMN status_step INTEGER DEFAULT 0");
+        }
+        if (!hasItemsSummary) {
+            db.execSQL("ALTER TABLE orders ADD COLUMN items_summary TEXT DEFAULT ''");
+        }
+        if (!hasCancelReason) {
+            db.execSQL("ALTER TABLE orders ADD COLUMN cancel_reason TEXT DEFAULT ''");
+        }
+        if (!hasItemsRaw) {
+            db.execSQL("ALTER TABLE orders ADD COLUMN items_raw TEXT DEFAULT ''");
+        }
     }
 
     // Nạp danh sách sản phẩm vào bảng products
@@ -88,22 +148,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ánh xạ hình ảnh theo tên sản phẩm
     public static int getImageForProduct(String name) {
-        if (name == null) return R.drawable.ic_launcher_foreground;
-        switch (name.trim()) {
-            case "iPhone 16 Pro Max": return R.drawable.img_iphone_16;
-            case "Samsung Galaxy S24 Ultra": return R.drawable.img_samsung_s24;
-            case "MacBook Air M3 13 inch": return R.drawable.img_macbook_m3;
-            case "iPad Pro M4 11 inch": return R.drawable.img_ipad_pro_m4;
-            case "Tai nghe AirPods Pro 2": return R.drawable.img_airpods_pro;
-            case "Tai nghe Sony WH-1000XM5": return R.drawable.img_sony_wh1000xm5;
-            case "Apple Watch Series 10": return R.drawable.img_apple_watch_series10;
-            case "Bàn phím cơ Keychron K8 Pro": return R.drawable.img_keychron;
-            case "Chuột Logitech MX Master 3S": return R.drawable.img_logitech_mx;
-            case "Loa Marshall Emberton II": return R.drawable.img_marshall_emberton;
-            case "Tai nghe Marshall Major IV": return R.drawable.img_marshall_major;
-            case "Loa JBL Charge 5": return R.drawable.img_jbl_charge5;
-            default: return R.drawable.ic_launcher_foreground;
+        return getImageForProduct(name, null);
+    }
+
+    // ánh xạ hình ảnh theo tên hoặc danh mục cho sản phẩm mới
+    public static int getImageForProduct(String name, String category) {
+        if (name != null) {
+            switch (name.trim()) {
+                case "iPhone 16 Pro Max": return R.drawable.img_iphone_16;
+                case "Samsung Galaxy S24 Ultra": return R.drawable.img_samsung_s24;
+                case "MacBook Air M3 13 inch": return R.drawable.img_macbook_m3;
+                case "iPad Pro M4 11 inch": return R.drawable.img_ipad_pro_m4;
+                case "Tai nghe AirPods Pro 2": return R.drawable.img_airpods_pro;
+                case "Tai nghe Sony WH-1000XM5": return R.drawable.img_sony_wh1000xm5;
+                case "Apple Watch Series 10": return R.drawable.img_apple_watch_series10;
+                case "Bàn phím cơ Keychron K8 Pro": return R.drawable.img_keychron;
+                case "Chuột Logitech MX Master 3S": return R.drawable.img_logitech_mx;
+                case "Loa Marshall Emberton II": return R.drawable.img_marshall_emberton;
+                case "Tai nghe Marshall Major IV": return R.drawable.img_marshall_major;
+                case "Loa JBL Charge 5": return R.drawable.img_jbl_charge5;
+            }
         }
+        if (category != null) {
+            String lower = category.toLowerCase(Locale.ROOT);
+            if (lower.contains("điện thoại")) return R.drawable.img_iphone_16;
+            if (lower.contains("máy tính bảng") || lower.contains("tablet")) return R.drawable.img_ipad_pro_m4;
+            if (lower.contains("laptop") || lower.contains("máy tính")) return R.drawable.img_macbook_m3;
+            if (lower.contains("âm thanh") || lower.contains("tai nghe") || lower.contains("loa")) return R.drawable.img_airpods_pro;
+            if (lower.contains("đồng hồ")) return R.drawable.img_apple_watch_series10;
+            if (lower.contains("bàn phím")) return R.drawable.img_keychron;
+            if (lower.contains("chuột")) return R.drawable.img_logitech_mx;
+        }
+        return R.drawable.ic_store_24;
     }
 
     // Đọc danh sách tất cả sản phẩm từ SQLite
@@ -116,10 +192,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (c != null) {
             while (c.moveToNext()) { //duyệt hết data
                 String name = c.getString(0);
-                int imgRes = getImageForProduct(name); // Luôn lấy ảnh chuẩn xác theo tên
+                String category = c.getString(4);
+                int imgRes = getImageForProduct(name, category); // Luôn lấy ảnh chuẩn xác theo tên hoặc danh mục
                 list.add(new Product( //khởi tạo đối tượng Product từ các cột trên dòng hiện tại
                         name, c.getString(1), c.getString(2), imgRes,
-                        c.getString(4), c.getString(5), c.getString(6), c.getString(7),
+                        category, c.getString(5), c.getString(6), c.getString(7),
                         c.getInt(8) == 1
                 ));
             }
@@ -128,15 +205,118 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    // Thêm mới hoặc cập nhật sản phẩm trong SQLite theo SKU (Admin)
+    public boolean upsertProduct(Product p) {
+        if (p == null || p.getSku() == null || p.getSku().trim().isEmpty()) {
+            return false;
+        }
+        ContentValues cv = new ContentValues();
+        cv.put("name", p.getName());
+        cv.put("description", p.getDescription());
+        cv.put("price", p.getPrice());
+        cv.put("image_res_id", getImageForProduct(p.getName(), p.getCategory()));
+        cv.put("category", p.getCategory());
+        cv.put("sku", p.getSku().trim());
+        cv.put("warranty", p.getWarranty());
+        cv.put("detailed_specs", p.getDetailedSpecs());
+        cv.put("in_stock", p.isInStock() ? 1 : 0);
+
+        SQLiteDatabase db = getWritableDatabase();
+        int updated = db.update("products", cv, "sku = ?", new String[]{p.getSku().trim()});
+        if (updated > 0) {
+            return true;
+        }
+        return db.insert("products", null, cv) != -1;
+    }
+
+    // Xóa sản phẩm theo SKU (Admin)
+    public boolean deleteProductBySku(String sku) {
+        if (sku == null || sku.trim().isEmpty()) {
+            return false;
+        }
+        return getWritableDatabase().delete("products", "sku = ?", new String[]{sku.trim()}) > 0;
+    }
+
     // Đăng ký tài khoản mới
     public boolean registerUser(String username, String password) {
+        return addUser(username, password, UserAccount.ROLE_USER);
+    }
+
+    // Thêm tài khoản mới kèm vai trò
+    public boolean addUser(String username, String password, String role) {
+        if (username == null || username.trim().isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
+        String cleanUser = username.trim();
         ContentValues cv = new ContentValues();
-        cv.put("username", username);
+        cv.put("username", cleanUser);
         cv.put("password", password);
-        //username ràng buộc UNIQUE
-        //Chèn dòng mới vào bảng users trả về ID (hàng, cột) của dòng vừa chèn
-        //insert sẽ trả về -1 so sánh != -1, true: đăng ký thành công / false: đăng ký thất bại
+        cv.put("role", UserAccount.normalizeRole(role, cleanUser));
         return getWritableDatabase().insert("users", null, cv) != -1;
+    }
+
+    // Kiểm tra quyền Admin theo username hoặc cột role
+    public boolean isAdminUser(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+        String clean = username.trim();
+        if ("admin".equalsIgnoreCase(clean)) {
+            return true;
+        }
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT role FROM users WHERE LOWER(username) = LOWER(?)",
+                new String[]{clean});
+        boolean admin = false;
+        if (c != null) {
+            if (c.moveToFirst()) {
+                admin = UserAccount.ROLE_ADMIN.equalsIgnoreCase(c.getString(0));
+            }
+            c.close();
+        }
+        return admin;
+    }
+
+    // Lấy toàn bộ tài khoản người dùng (Admin)
+    public java.util.List<UserAccount> getAllUsers() {
+        java.util.List<UserAccount> users = new java.util.ArrayList<>();
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT id, username, password, COALESCE(role, 'user') FROM users ORDER BY id ASC",
+                null);
+        if (c != null) {
+            while (c.moveToNext()) {
+                users.add(new UserAccount(
+                        c.getInt(0),
+                        c.getString(1),
+                        c.getString(2),
+                        c.getString(3)
+                ));
+            }
+            c.close();
+        }
+        return users;
+    }
+
+    // Cập nhật thông tin người dùng (Admin)
+    public boolean updateUser(int id, String username, String password, String role) {
+        if (username == null || username.trim().isEmpty() || password == null || password.isEmpty()) {
+            return false;
+        }
+        String cleanUser = username.trim();
+        ContentValues cv = new ContentValues();
+        cv.put("username", cleanUser);
+        cv.put("password", password);
+        cv.put("role", UserAccount.normalizeRole(role, cleanUser));
+        try {
+            return getWritableDatabase().update("users", cv, "id = ?", new String[]{String.valueOf(id)}) > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Xóa người dùng theo ID (Admin)
+    public boolean deleteUser(int id) {
+        return getWritableDatabase().delete("users", "id = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
     // Kiểm tra username đã tồn tại chưa
@@ -158,6 +338,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Lưu đơn đặt hàng mới vào SQLite
     public long insertOrder(String code, String user, String name, String phone, String address, String note, String payment, String total, int count) {
+        return insertOrder(code, user, name, phone, address, note, payment, total, count, "", "");
+    }
+
+    // Lưu đơn đặt hàng mới kèm tóm tắt sản phẩm
+    public long insertOrder(String code, String user, String name, String phone, String address, String note, String payment, String total, int count, String itemsSummary) {
+        return insertOrder(code, user, name, phone, address, note, payment, total, count, itemsSummary, "");
+    }
+
+    // Lưu đơn đặt hàng mới kèm tóm tắt và mã sản phẩm để hỗ trợ đặt lại
+    public long insertOrder(String code, String user, String name, String phone, String address, String note, String payment, String total, int count, String itemsSummary, String itemsRaw) {
         ContentValues cv = new ContentValues();
         cv.put("order_code", code);
         cv.put("username", user);
@@ -169,7 +359,142 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("total_price", total);
         cv.put("item_count", count);
         cv.put("created_at", new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date()));
+        cv.put("status_step", 0);
+        cv.put("items_summary", itemsSummary != null ? itemsSummary : "");
+        cv.put("cancel_reason", "");
+        cv.put("items_raw", itemsRaw != null ? itemsRaw : "");
         return getWritableDatabase().insert("orders", null, cv);
+    }
+
+    // Lấy danh sách đơn hàng theo user (mới nhất trước)
+    public java.util.List<Order> getOrdersByUser(String username) {
+        java.util.List<Order> result = new java.util.ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT order_code, username, receiver_name, receiver_phone, receiver_address, "
+                        + "receiver_note, payment_method, total_price, item_count, created_at, status_step, "
+                        + "COALESCE(items_summary, ''), COALESCE(cancel_reason, ''), COALESCE(items_raw, '') "
+                        + "FROM orders WHERE username = ? ORDER BY id DESC",
+                new String[]{username});
+        try {
+            while (c.moveToNext()) {
+                result.add(readOrderFromCursor(c));
+            }
+        } finally {
+            c.close();
+        }
+        return result;
+    }
+
+    // Lấy toàn bộ đơn hàng của tất cả người dùng (dành cho Admin)
+    public java.util.List<Order> getAllOrders() {
+        java.util.List<Order> result = new java.util.ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT order_code, username, receiver_name, receiver_phone, receiver_address, "
+                        + "receiver_note, payment_method, total_price, item_count, created_at, status_step, "
+                        + "COALESCE(items_summary, ''), COALESCE(cancel_reason, ''), COALESCE(items_raw, '') "
+                        + "FROM orders ORDER BY id DESC",
+                null);
+        try {
+            while (c.moveToNext()) {
+                result.add(readOrderFromCursor(c));
+            }
+        } finally {
+            c.close();
+        }
+        return result;
+    }
+
+    // Lấy chi tiết một đơn hàng theo mã đơn
+    public Order getOrderByCode(String orderCode) {
+        if (orderCode == null || orderCode.trim().isEmpty()) {
+            return null;
+        }
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT order_code, username, receiver_name, receiver_phone, receiver_address, "
+                        + "receiver_note, payment_method, total_price, item_count, created_at, status_step, "
+                        + "COALESCE(items_summary, ''), COALESCE(cancel_reason, ''), COALESCE(items_raw, '') "
+                        + "FROM orders WHERE order_code = ? LIMIT 1",
+                new String[]{orderCode.trim()});
+        try {
+            if (c.moveToFirst()) {
+                return readOrderFromCursor(c);
+            }
+        } finally {
+            c.close();
+        }
+        return null;
+    }
+
+    private Order readOrderFromCursor(Cursor c) {
+        return new Order(
+                c.getString(0),
+                c.getString(1),
+                c.getString(2),
+                c.getString(3),
+                c.getString(4),
+                c.getString(5),
+                c.getString(6),
+                c.getString(7),
+                c.getInt(8),
+                c.getString(9),
+                c.getInt(10),
+                c.getString(11),
+                c.getString(12),
+                c.getString(13)
+        );
+    }
+
+    // Cập nhật trạng thái tiến trình đơn hàng (-1 là Đã hủy, 0..4 là các bước giao hàng)
+    public int updateOrderStatus(String orderCode, int statusStep) {
+        return updateOrderStatusWithReason(orderCode, statusStep, null);
+    }
+
+    // Cập nhật trạng thái tiến trình kèm lý do hủy (nếu có)
+    public int updateOrderStatusWithReason(String orderCode, int statusStep, String cancelReason) {
+        int clamped = Order.clampStep(statusStep);
+        ContentValues cv = new ContentValues();
+        cv.put("status_step", clamped);
+        if (clamped == Order.STEP_CANCELLED) {
+            cv.put("cancel_reason", cancelReason != null ? cancelReason : "");
+        } else if (cancelReason != null) {
+            cv.put("cancel_reason", cancelReason);
+        }
+        return getWritableDatabase().update("orders", cv, "order_code = ?", new String[]{orderCode});
+    }
+
+    // Đồng bộ đơn hàng từ Firestore về SQLite cục bộ
+    public void upsertOrderFromCloud(Order order) {
+        if (order == null || order.getOrderCode() == null) {
+            return;
+        }
+        ContentValues cv = new ContentValues();
+        cv.put("order_code", order.getOrderCode());
+        cv.put("username", order.getUserEmail());
+        cv.put("receiver_name", order.getReceiverName());
+        cv.put("receiver_phone", order.getReceiverPhone());
+        cv.put("receiver_address", order.getReceiverAddress());
+        cv.put("receiver_note", order.getReceiverNote());
+        cv.put("payment_method", order.getPaymentMethod());
+        cv.put("total_price", order.getTotalPrice());
+        cv.put("item_count", order.getItemCount());
+        cv.put("created_at", order.getCreatedAt());
+        cv.put("status_step", order.getStatusStep());
+        cv.put("items_summary", order.getItemsSummary());
+        cv.put("cancel_reason", order.getCancelReason());
+        if (order.getItemsRaw() != null && !order.getItemsRaw().isEmpty()) {
+            cv.put("items_raw", order.getItemsRaw());
+        }
+        SQLiteDatabase db = getWritableDatabase();
+        int updated = db.update("orders", cv, "order_code = ?", new String[]{order.getOrderCode()});
+        if (updated == 0) {
+            if (!cv.containsKey("items_raw")) {
+                cv.put("items_raw", "");
+            }
+            db.insert("orders", null, cv);
+        }
     }
 
     // Lưu hoặc cập nhật món hàng trong giỏ của tài khoản

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="6dp"
+    app:strokeColor="@color/border"
+    app:strokeWidth="1dp"
+    tools:ignore="HardcodedText,TouchTargetSizeCheck">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Header Dialog -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDialogIcon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:cardBackgroundColor="@color/primary_soft"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <ImageView
+                        android:id="@+id/imgDialogIcon"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="Biểu tượng đơn hàng"
+                        android:src="@drawable/ic_cart_24"
+                        app:tint="@color/primary" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvDialogTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xác nhận đặt hàng"
+                        android:textColor="@color/ink"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDialogSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Kiểm tra kỹ thông tin trước khi đặt"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12.5sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDialogBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_badge_primary"
+                android:paddingStart="10dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="4dp"
+                android:text="Mã đơn: #ORD-000000"
+                android:textColor="@color/primary_dark"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- Khối Thông tin người nhận -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardBackgroundColor="@color/screen_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.05"
+                        android:text="THÔNG TIN NHẬN HÀNG"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDialogReceiver"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Người nhận: Nguyễn Văn A - 0901234567"
+                        android:textColor="@color/ink"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDialogAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Địa chỉ: Quận 1, TP.HCM"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvDialogNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Ghi chú: Giao giờ hành chính"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12.5sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvDialogPayment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Thanh toán: COD"
+                        android:textColor="@color/primary_dark"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Khối Sản phẩm & Tổng tiền -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:cardBackgroundColor="@color/screen_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/tvDialogItemsHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.05"
+                        android:text="SẢN PHẨM ĐẶT MUA"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDialogItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="- iPhone 16 Pro Max (x1) - 34.990.000đ"
+                        android:textColor="@color/ink"
+                        android:textSize="13sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@color/border" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tổng thanh toán"
+                            android:textColor="@color/ink"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvDialogTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="34.990.000đ"
+                            android:textColor="@color/primary_dark"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Hàng nút hành động -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDialogNegative"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:text="Chỉnh sửa lại"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ink"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/surface"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/border_strong"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDialogPositive"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1.2"
+                    android:minHeight="48dp"
+                    android:text="Xác nhận đặt"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/primary"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</com.google.android.material.card.MaterialCardView>

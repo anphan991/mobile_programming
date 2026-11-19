@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:text="Thanh toán và Đặt hàng"
                 android:textColor="@color/ink"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -70,6 +70,26 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewOrders"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="48dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:text="Đơn đã đặt"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="12dp" />
     </LinearLayout>
 
     <!-- Khung cuộn nội dung đơn hàng -->
@@ -80,8 +100,8 @@
         android:layout_marginBottom="12dp"
         android:layout_weight="1"
         app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
         app:strokeColor="@color/border"
         app:strokeWidth="1dp">
 
@@ -102,115 +122,121 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:letterSpacing="0.06"
                     android:text="1. ĐỊA CHỈ NHẬN HÀNG"
                     android:textColor="@color/text_tertiary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
 
-                <!-- Tên người nhận -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Họ và tên người nhận"
-                    android:textColor="@color/ink"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
-
-                <EditText
-                    android:id="@+id/edtReceiverName"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Nhập họ và tên người nhận"
-                    android:imeOptions="actionNext"
-                    android:inputType="textPersonName"
-                    android:maxLines="1"
-                    android:textColor="@color/ink"
-                    android:textColorHint="@color/text_tertiary"
-                    android:textSize="13.5sp" />
-
-                <!-- Số điện thoại -->
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Số điện thoại liên hệ"
-                    android:textColor="@color/ink"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
+                    android:layout_marginBottom="12dp"
+                    android:hint="Họ và tên người nhận"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_person_24"
+                    app:startIconTint="@color/primary">
 
-                <EditText
-                    android:id="@+id/edtReceiverPhone"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtReceiverName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textPersonName"
+                        android:maxLines="1"
+                        android:textColor="@color/ink"
+                        android:textSize="13.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Ví dụ: 0912 345 678"
-                    android:imeOptions="actionNext"
-                    android:inputType="phone"
-                    android:maxLines="1"
-                    android:textColor="@color/ink"
-                    android:textColorHint="@color/text_tertiary"
-                    android:textSize="13.5sp" />
-
-                <!-- Địa chỉ chi tiết -->
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Địa chỉ giao hàng chi tiết"
-                    android:textColor="@color/ink"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
+                    android:layout_marginBottom="12dp"
+                    android:hint="Số điện thoại liên hệ"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_phone"
+                    app:startIconTint="@color/primary">
 
-                <EditText
-                    android:id="@+id/edtReceiverAddress"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtReceiverPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="phone"
+                        android:maxLines="1"
+                        android:textColor="@color/ink"
+                        android:textSize="13.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Số nhà, tên đường, phường/xã, quận/huyện..."
-                    android:imeOptions="actionNext"
-                    android:inputType="textPostalAddress"
-                    android:maxLines="1"
-                    android:textColor="@color/ink"
-                    android:textColorHint="@color/text_tertiary"
-                    android:textSize="13.5sp" />
-
-                <!-- Ghi chú đơn hàng -->
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Ghi chú đơn hàng (Tùy chọn)"
-                    android:textColor="@color/ink"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold" />
+                    android:layout_marginBottom="12dp"
+                    android:hint="Địa chỉ giao hàng chi tiết"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary"
+                    app:startIconDrawable="@drawable/ic_location_24"
+                    app:startIconTint="@color/primary">
 
-                <EditText
-                    android:id="@+id/edtReceiverNote"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtReceiverAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionNext"
+                        android:inputType="textPostalAddress"
+                        android:maxLines="1"
+                        android:textColor="@color/ink"
+                        android:textSize="13.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:hint="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."
-                    android:imeOptions="actionDone"
-                    android:inputType="text"
-                    android:maxLines="1"
-                    android:textColor="@color/ink"
-                    android:textColorHint="@color/text_tertiary"
-                    android:textSize="13.5sp" />
+                    android:layout_height="wrap_content"
+                    android:hint="Ghi chú đơn hàng (Tùy chọn)"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary"
+                    app:hintTextColor="@color/primary">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtReceiverNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="@color/ink"
+                        android:textSize="13.5sp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Phân cách -->
-                <View
+                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@color/border" />
+                    app:dividerColor="@color/border" />
 
                 <!-- 2. DANH SÁCH SẢN PHẨM -->
                 <LinearLayout
@@ -261,12 +287,12 @@
                     android:visibility="gone" />
 
                 <!-- Phân cách -->
-                <View
+                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@color/border" />
+                    app:dividerColor="@color/border" />
 
                 <!-- 3. PHƯƠNG THỨC THANH TOÁN -->
                 <TextView
@@ -347,12 +373,12 @@
                 </LinearLayout>
 
                 <!-- Phân cách -->
-                <View
+                <com.google.android.material.divider.MaterialDivider
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="16dp"
-                    android:background="@color/border" />
+                    app:dividerColor="@color/border" />
 
                 <!-- 4. TỔNG KẾT ĐƠN HÀNG -->
                 <TextView
