@@ -75,7 +75,7 @@ public class Order {
             case STEP_PACKING:
                 return "Đang đóng gói";
             case STEP_SHIPPED_CARRIER:
-                return "Đã giao ĐVVC";
+                return "Đã giao cho đơn vị vận chuyển";
             case STEP_OUT_FOR_DELIVERY:
                 return "Đang giao đến bạn";
             case STEP_DELIVERED:

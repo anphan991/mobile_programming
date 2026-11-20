@@ -13,7 +13,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechStore.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,7 +33,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS products ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "name TEXT, description TEXT, price TEXT, image_res_id INTEGER, "
-                + "category TEXT, sku TEXT UNIQUE, warranty TEXT, detailed_specs TEXT, in_stock INTEGER)");
+                + "category TEXT, sku TEXT UNIQUE, warranty TEXT, detailed_specs TEXT, in_stock INTEGER, "
+                + "image_path TEXT DEFAULT '', image_base64 TEXT DEFAULT '', image_key TEXT DEFAULT '')");
+        ensureProductsImageColumns(db);
 
         //bảng đơn đặt hàng
         db.execSQL("CREATE TABLE IF NOT EXISTS orders ("
@@ -128,6 +130,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    private void ensureProductsImageColumns(SQLiteDatabase db) {
+        Cursor c = db.rawQuery("PRAGMA table_info(products)", null);
+        boolean hasPath = false;
+        boolean hasBase64 = false;
+        boolean hasKey = false;
+        try {
+            int nameIdx = c.getColumnIndex("name");
+            while (c.moveToNext()) {
+                if (nameIdx >= 0) {
+                    String colName = c.getString(nameIdx);
+                    if ("image_path".equals(colName)) hasPath = true;
+                    if ("image_base64".equals(colName)) hasBase64 = true;
+                    if ("image_key".equals(colName)) hasKey = true;
+                }
+            }
+        } finally {
+            c.close();
+        }
+        if (!hasPath) db.execSQL("ALTER TABLE products ADD COLUMN image_path TEXT DEFAULT ''");
+        if (!hasBase64) db.execSQL("ALTER TABLE products ADD COLUMN image_base64 TEXT DEFAULT ''");
+        if (!hasKey) db.execSQL("ALTER TABLE products ADD COLUMN image_key TEXT DEFAULT ''");
+    }
+
     // Nạp danh sách sản phẩm vào bảng products
     private void seedDefaultProducts(SQLiteDatabase db) {
         //duyệt qua các sp ở productlist
@@ -182,23 +207,68 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return R.drawable.ic_store_24;
     }
 
+    public static int getImageByKeyOrProduct(String key, String name, String category) {
+        if (key != null && !key.trim().isEmpty()) {
+            switch (key.trim()) {
+                case "img_iphone_16": return R.drawable.img_iphone_16;
+                case "img_samsung_s24": return R.drawable.img_samsung_s24;
+                case "img_macbook_m3": return R.drawable.img_macbook_m3;
+                case "img_ipad_pro_m4": return R.drawable.img_ipad_pro_m4;
+                case "img_airpods_pro": return R.drawable.img_airpods_pro;
+                case "img_sony_wh1000xm5": return R.drawable.img_sony_wh1000xm5;
+                case "img_apple_watch_series10": return R.drawable.img_apple_watch_series10;
+                case "img_keychron": return R.drawable.img_keychron;
+                case "img_logitech_mx": return R.drawable.img_logitech_mx;
+                case "img_marshall_emberton": return R.drawable.img_marshall_emberton;
+                case "img_marshall_major": return R.drawable.img_marshall_major;
+                case "img_jbl_charge5": return R.drawable.img_jbl_charge5;
+                case "ic_store_24": return R.drawable.ic_store_24;
+            }
+        }
+        return getImageForProduct(name, category);
+    }
+
+    public static String getKeyForDrawable(int resId) {
+        if (resId == R.drawable.img_iphone_16) return "img_iphone_16";
+        if (resId == R.drawable.img_samsung_s24) return "img_samsung_s24";
+        if (resId == R.drawable.img_macbook_m3) return "img_macbook_m3";
+        if (resId == R.drawable.img_ipad_pro_m4) return "img_ipad_pro_m4";
+        if (resId == R.drawable.img_airpods_pro) return "img_airpods_pro";
+        if (resId == R.drawable.img_sony_wh1000xm5) return "img_sony_wh1000xm5";
+        if (resId == R.drawable.img_apple_watch_series10) return "img_apple_watch_series10";
+        if (resId == R.drawable.img_keychron) return "img_keychron";
+        if (resId == R.drawable.img_logitech_mx) return "img_logitech_mx";
+        if (resId == R.drawable.img_marshall_emberton) return "img_marshall_emberton";
+        if (resId == R.drawable.img_marshall_major) return "img_marshall_major";
+        if (resId == R.drawable.img_jbl_charge5) return "img_jbl_charge5";
+        return "ic_store_24";
+    }
+
     // Đọc danh sách tất cả sản phẩm từ SQLite
     public ArrayList<Product> getAllProducts() {
         ArrayList<Product> list = new ArrayList<>();  //ds rỗng
         Cursor c = getReadableDatabase().rawQuery(
-                "SELECT name, description, price, image_res_id, category, sku, warranty, detailed_specs, in_stock "
+                "SELECT name, description, price, image_res_id, category, sku, warranty, detailed_specs, in_stock, "
+                        + "COALESCE(image_path, ''), COALESCE(image_base64, ''), COALESCE(image_key, '') "
                         + "FROM products ORDER BY id ASC", null);
         //Kiểm tra an toàn cursor có được tạo thành công hay không tránh ứng dụng bị văng
         if (c != null) {
             while (c.moveToNext()) { //duyệt hết data
                 String name = c.getString(0);
                 String category = c.getString(4);
-                int imgRes = getImageForProduct(name, category); // Luôn lấy ảnh chuẩn xác theo tên hoặc danh mục
-                list.add(new Product( //khởi tạo đối tượng Product từ các cột trên dòng hiện tại
+                String imagePath = c.getString(9);
+                String imageBase64 = c.getString(10);
+                String imageKey = c.getString(11);
+                int imgRes = getImageByKeyOrProduct(imageKey, name, category);
+                Product p = new Product( //khởi tạo đối tượng Product từ các cột trên dòng hiện tại
                         name, c.getString(1), c.getString(2), imgRes,
                         category, c.getString(5), c.getString(6), c.getString(7),
                         c.getInt(8) == 1
-                ));
+                );
+                p.setImagePath(imagePath);
+                p.setImageBase64(imageBase64);
+                p.setImageKey(imageKey);
+                list.add(p);
             }
             c.close();
         }
@@ -210,16 +280,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (p == null || p.getSku() == null || p.getSku().trim().isEmpty()) {
             return false;
         }
+        String key = (p.getImageKey() != null && !p.getImageKey().isEmpty())
+                ? p.getImageKey()
+                : getKeyForDrawable(p.getImageResId());
+        int resolvedRes = getImageByKeyOrProduct(key, p.getName(), p.getCategory());
         ContentValues cv = new ContentValues();
         cv.put("name", p.getName());
         cv.put("description", p.getDescription());
         cv.put("price", p.getPrice());
-        cv.put("image_res_id", getImageForProduct(p.getName(), p.getCategory()));
+        cv.put("image_res_id", resolvedRes);
         cv.put("category", p.getCategory());
         cv.put("sku", p.getSku().trim());
         cv.put("warranty", p.getWarranty());
         cv.put("detailed_specs", p.getDetailedSpecs());
         cv.put("in_stock", p.isInStock() ? 1 : 0);
+        cv.put("image_path", p.getImagePath());
+        cv.put("image_base64", p.getImageBase64());
+        cv.put("image_key", key);
 
         SQLiteDatabase db = getWritableDatabase();
         int updated = db.update("products", cv, "sku = ?", new String[]{p.getSku().trim()});

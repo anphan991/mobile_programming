@@ -108,7 +108,7 @@
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:minHeight="48dp"
-                android:text="Sửa giá &amp; thông tin"
+                android:text="Sửa giá và thông tin"
                 android:textAllCaps="false"
                 android:textColor="@color/primary_dark"
                 android:textSize="12.5sp"

@@ -15,6 +15,9 @@ public class Product {
     private String warranty; //bảo hành
     private String detailedSpecs;
     private boolean inStock;
+    private String imagePath = "";
+    private String imageBase64 = "";
+    private String imageKey = "";
 
     // Constructor
     public Product(String name, String description, String price, int imageResId) {
@@ -47,7 +50,9 @@ public class Product {
     }
 
     public String getDescription() {
-        return description != null ? description.replace(" · ", " - ").replace(" • ", " - ") : "";
+        return description != null
+                ? description.replace(" · ", " - ").replace(" • ", " - ").replace(" & ", " và ")
+                : "";
     }
 
     public String getPrice() {
@@ -71,8 +76,17 @@ public class Product {
     }
 
     public String getDetailedSpecs() {
-        return detailedSpecs;
+        return detailedSpecs != null ? detailedSpecs.replace(" & ", " và ") : "";
     }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath != null ? imagePath : ""; }
+
+    public String getImageBase64() { return imageBase64; }
+    public void setImageBase64(String imageBase64) { this.imageBase64 = imageBase64 != null ? imageBase64 : ""; }
+
+    public String getImageKey() { return imageKey; }
+    public void setImageKey(String imageKey) { this.imageKey = imageKey != null ? imageKey : ""; }
 
     public boolean isInStock() {
         return inStock;
@@ -102,6 +116,8 @@ public class Product {
         map.put("warranty", warranty);
         map.put("detailedSpecs", detailedSpecs);
         map.put("inStock", inStock);
+        map.put("imageKey", imageKey);
+        map.put("imageBase64", imageBase64);
         return map;
     }
 
@@ -114,18 +130,23 @@ public class Product {
         String sku = doc.getString("sku");
         String warranty = doc.getString("warranty");
         String specs = doc.getString("detailedSpecs");
+        String imageKey = doc.getString("imageKey");
+        String imageBase64 = doc.getString("imageBase64");
         String resolvedCat = category != null ? category : "Thiết bị";
         String normalizedDesc = desc != null ? desc.replace(" · ", " - ").replace(" • ", " - ") : "";
-        return new Product(
+        Product p = new Product(
                 name != null ? name : "Sản phẩm",
                 normalizedDesc,
                 price != null ? price : "0đ",
-                DatabaseHelper.getImageForProduct(name, resolvedCat),
+                DatabaseHelper.getImageByKeyOrProduct(imageKey, name, resolvedCat),
                 resolvedCat,
                 sku != null ? sku : doc.getId(),
                 warranty != null ? warranty : "",
                 specs != null ? specs : "",
                 Boolean.TRUE.equals(doc.getBoolean("inStock"))
         );
+        p.setImageKey(imageKey);
+        p.setImageBase64(imageBase64);
+        return p;
     }
 }

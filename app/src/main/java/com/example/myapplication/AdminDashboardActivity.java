@@ -50,6 +50,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private String currentUser;
     private int currentTab = TAB_PRODUCTS;
+    private final ProductImagePicker imagePicker = new ProductImagePicker(this);
 
     private MaterialButton btnTabProducts, btnTabOrders, btnTabUsers, btnAdminAdd;
     private TextView tvAdminSectionCount, tvAdminEmpty;
@@ -133,7 +134,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnAdminAdd.setOnClickListener(v -> {
             if (currentTab == TAB_PRODUCTS) {
-                ProductEditorHelper.showProductEditor(this, null, this::refreshCurrentTab);
+                ProductEditorHelper.showProductEditor(this, imagePicker, null, this::refreshCurrentTab);
             } else if (currentTab == TAB_USERS) {
                 showUserEditorDialog(null);
             }
@@ -402,7 +403,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull VH h, int position) {
             Product p = products.get(position);
-            h.img.setImageResource(p.getImageResId());
+            ProductImageHelper.bindImage(h.img, p);
             h.name.setText(p.getName());
             h.meta.setText(p.getSku() + " - " + p.getCategory());
             h.price.setText(p.getPrice());
@@ -416,7 +417,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 h.stock.setTextColor(ContextCompat.getColor(AdminDashboardActivity.this, R.color.danger));
             }
             h.btnEdit.setOnClickListener(v -> ProductEditorHelper.showProductEditor(
-                    AdminDashboardActivity.this, p, AdminDashboardActivity.this::refreshCurrentTab));
+                    AdminDashboardActivity.this, imagePicker, p, AdminDashboardActivity.this::refreshCurrentTab));
             h.btnDelete.setOnClickListener(v -> ProductEditorHelper.confirmDeleteProduct(
                     AdminDashboardActivity.this, p, AdminDashboardActivity.this::refreshCurrentTab));
         }

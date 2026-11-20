@@ -84,28 +84,6 @@
                 android:visibility="gone" />
         </LinearLayout>
 
-        <!-- Nút mở nhanh Bảng quản trị (Chỉ hiện với Admin) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHeaderAdmin"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginEnd="6dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            android:minHeight="48dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:text="Quản trị"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="12.5sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="14dp" />
-
         <!-- Nút mở giỏ hàng -->
         <FrameLayout
             android:layout_width="48dp"
@@ -175,6 +153,63 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
+    <!-- Thanh truy cập nhanh Bảng quản trị (Chỉ hiện với Admin, tách khỏi header để không bị vỡ layout) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardAdminQuickBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="48dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/primary"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="1dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_surface"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
+                android:text="ADMIN"
+                android:textColor="@color/primary_dark"
+                android:textSize="10.5sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Mở Bảng quản trị (SP, Đơn hàng, User)"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="Mở quản trị"
+                android:src="@drawable/ic_chevron_right_24"
+                app:tint="@color/white" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Thanh Menu ẩn hiện (Collapsible Menu Panel) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/layoutMenu"
@@ -209,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:letterSpacing="0.08"
-                    android:text="ĐIỀU HƯỚNG &amp; BỘ LỌC"
+                    android:text="TIỆN ÍCH VÀ ĐIỀU HƯỚNG"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
                     android:textStyle="bold" />
@@ -230,7 +265,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/menuHome"
+                android:id="@+id/menuSortPrice"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_menu_item"
@@ -239,13 +274,13 @@
                 android:gravity="center_vertical"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:text="Tất cả sản phẩm"
-                android:textColor="@color/primary_dark"
+                android:text="Sắp xếp giá: Mặc định"
+                android:textColor="@color/ink"
                 android:textSize="13.5sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/menuFilterMobile"
+                android:id="@+id/menuInStockOnly"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_menu_item"
@@ -254,35 +289,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:text="Điện thoại &amp; Máy tính bảng"
-                android:textColor="@color/ink"
-                android:textSize="13.5sp" />
-
-            <TextView
-                android:id="@+id/menuFilterAudio"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_menu_item"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:text="Thiết bị âm thanh (Tai nghe, Loa)"
-                android:textColor="@color/ink"
-                android:textSize="13.5sp" />
-
-            <TextView
-                android:id="@+id/menuFilterAccessory"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_menu_item"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:text="Laptop &amp; Phụ kiện công nghệ"
+                android:text="Tồn kho: Hiển thị tất cả"
                 android:textColor="@color/ink"
                 android:textSize="13.5sp" />
 
@@ -318,7 +325,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:text="Giỏ hàng &amp; Đặt mua"
+                android:text="Giỏ hàng và Đặt mua"
                 android:textColor="@color/ink"
                 android:textSize="13.5sp" />
 
@@ -337,21 +344,77 @@
                 android:textSize="13.5sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/menuAdminPanel"
+            <LinearLayout
+                android:id="@+id/layoutMenuAdminSection"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_menu_item"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:text="Quản trị hệ thống (Admin)"
-                android:textColor="@color/primary"
-                android:textSize="13.5sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    app:dividerColor="@color/border" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="4dp"
+                    android:letterSpacing="0.06"
+                    android:text="QUẢN TRỊ HỆ THỐNG"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/menuAdminProducts"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="Quản lý sản phẩm và giá"
+                    android:textColor="@color/primary"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/menuAdminOrders"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="Quản lý và cập nhật đơn hàng"
+                    android:textColor="@color/primary"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/menuAdminUsers"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_menu_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:text="Quản lý tài khoản người dùng"
+                    android:textColor="@color/primary"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/menuInfo"
@@ -451,7 +514,7 @@
         android:overScrollMode="never"
         tools:listitem="@layout/item_spotlight" />
 
-    <!-- Thanh Filter Chips nổi bật tương phản cao -->
+    <!-- Thanh Filter Chips nổi bật + nút Sắp xếp theo giá -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -460,76 +523,129 @@
         android:overScrollMode="never"
         android:scrollbars="none">
 
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupFilter"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:chipSpacingHorizontal="8dp"
-            app:selectionRequired="true"
-            app:singleLine="true"
-            app:singleSelection="true">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterAll"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:text="Tất cả"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterMobile"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Điện thoại"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterTablet"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Tablet"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterLaptop"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Laptop"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterAudio"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Âm thanh"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFilterAccessory"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="Phụ kiện"
+                    android:textColor="@color/chip_text_selector"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold"
+                    app:chipBackgroundColor="@color/chip_bg_selector"
+                    app:chipCornerRadius="20dp"
+                    app:chipStrokeColor="@color/border"
+                    app:chipStrokeWidth="1dp" />
+            </com.google.android.material.chip.ChipGroup>
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipFilterAll"
+                android:id="@+id/chipSortPrice"
                 style="@style/Widget.Material3.Chip.Suggestion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checkable="true"
-                android:checked="true"
-                android:text="Tất cả"
-                android:textColor="@color/chip_text_selector"
+                android:layout_marginStart="8dp"
+                android:checkable="false"
+                android:text="Giá: Mặc định"
+                android:textColor="@color/ink"
                 android:textSize="12.5sp"
                 android:textStyle="bold"
-                app:chipBackgroundColor="@color/chip_bg_selector"
+                app:chipBackgroundColor="@color/surface"
                 app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/border"
+                app:chipStrokeColor="@color/primary"
                 app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipFilterMobile"
-                style="@style/Widget.Material3.Chip.Suggestion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Điện thoại"
-                android:textColor="@color/chip_text_selector"
-                android:textSize="12.5sp"
-                android:textStyle="bold"
-                app:chipBackgroundColor="@color/chip_bg_selector"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/border"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipFilterAudio"
-                style="@style/Widget.Material3.Chip.Suggestion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Âm thanh"
-                android:textColor="@color/chip_text_selector"
-                android:textSize="12.5sp"
-                android:textStyle="bold"
-                app:chipBackgroundColor="@color/chip_bg_selector"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/border"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipFilterAccessory"
-                style="@style/Widget.Material3.Chip.Suggestion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Phụ kiện"
-                android:textColor="@color/chip_text_selector"
-                android:textSize="12.5sp"
-                android:textStyle="bold"
-                app:chipBackgroundColor="@color/chip_bg_selector"
-                app:chipCornerRadius="20dp"
-                app:chipStrokeColor="@color/border"
-                app:chipStrokeWidth="1dp" />
-        </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
     </HorizontalScrollView>
 
     <!-- Dòng tiêu đề lưới + bộ đếm -->

@@ -148,7 +148,7 @@ public class PaymentActivity extends AppCompatActivity {
             TextView btnMinus = v.findViewById(R.id.btnCartMinus);
             TextView btnPlus = v.findViewById(R.id.btnCartPlus);
 
-            img.setImageResource(product.getImageResId());
+            ProductImageHelper.bindImage(img, product);
             tvName.setText(product.getName());
             tvPrice.setText(product.getPrice());
             tvQty.setText(String.valueOf(item.getQuantity()));

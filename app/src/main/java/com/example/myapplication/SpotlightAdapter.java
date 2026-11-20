@@ -38,7 +38,7 @@ public class SpotlightAdapter extends RecyclerView.Adapter<SpotlightAdapter.View
         holder.tvName.setText(product.getName());
         holder.tvDesc.setText(product.getDescription());
         holder.tvPrice.setText(product.getPrice());
-        holder.imgProduct.setImageResource(product.getImageResId());
+        ProductImageHelper.bindImage(holder.imgProduct, product);
 
         holder.itemView.setOnClickListener(v -> listener.onSpotlightClick(product));
     }

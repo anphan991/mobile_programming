@@ -5,33 +5,76 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * Tiện ích dùng chung cho Admin thêm, sửa và xóa sản phẩm (đồng bộ SQLite + Cloud Firestore).
+ * Tiện ích dùng chung cho Admin thêm, sửa và xóa sản phẩm (hỗ trợ chọn ảnh từ máy hoặc ảnh mẫu,
+ * đồng bộ SQLite + Cloud Firestore).
  */
 public final class ProductEditorHelper {
 
     private static final String[] CATEGORIES = new String[]{
             "Điện thoại",
             "Máy tính bảng",
-            "Laptop",
+            "Máy tính xách tay",
             "Thiết bị âm thanh",
             "Đồng hồ thông minh",
-            "Bàn phím",
-            "Chuột",
             "Phụ kiện"
+    };
+
+    private static final String[] PRESET_LABELS = new String[]{
+            "iPhone 16 Pro Max",
+            "Samsung Galaxy S24 Ultra",
+            "MacBook Air M3",
+            "iPad Pro M4",
+            "Tai nghe AirPods Pro 2",
+            "Tai nghe Sony WH-1000XM5",
+            "Apple Watch Series 10",
+            "Bàn phím Keychron K8 Pro",
+            "Chuột Logitech MX Master 3S",
+            "Loa Marshall Emberton II",
+            "Tai nghe Marshall Major IV",
+            "Loa JBL Charge 5",
+            "Biểu tượng mặc định"
+    };
+
+    private static final String[] PRESET_KEYS = new String[]{
+            "img_iphone_16",
+            "img_samsung_s24",
+            "img_macbook_m3",
+            "img_ipad_pro_m4",
+            "img_airpods_pro",
+            "img_sony_wh1000xm5",
+            "img_apple_watch_series10",
+            "img_keychron",
+            "img_logitech_mx",
+            "img_marshall_emberton",
+            "img_marshall_major",
+            "img_jbl_charge5",
+            "ic_store_24"
     };
 
     private ProductEditorHelper() {}
 
     public static void showProductEditor(Context context, Product existing, Runnable onSaved) {
+        showProductEditor(context, null, existing, onSaved);
+    }
+
+    public static void showProductEditor(Context context, ProductImagePicker imagePicker,
+                                         Product existing, Runnable onSaved) {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_admin_product, null);
+
+        ImageView imgPreview = view.findViewById(R.id.imgProdPreview);
+        MaterialButton btnPickGallery = view.findViewById(R.id.btnPickGalleryImage);
+        MaterialButton btnPickUrl = view.findViewById(R.id.btnPickUrlImage);
+        MaterialButton btnPickPreset = view.findViewById(R.id.btnPickPresetImage);
 
         TextInputEditText edtName = view.findViewById(R.id.edtProdName);
         TextInputEditText edtSku = view.findViewById(R.id.edtProdSku);
@@ -46,6 +89,11 @@ public final class ProductEditorHelper {
                 context, android.R.layout.simple_dropdown_item_1line, CATEGORIES);
         actvCategory.setAdapter(catAdapter);
 
+        final String[] selectedPath = {""};
+        final String[] selectedBase64 = {""};
+        final String[] selectedKey = {""};
+        final int[] selectedResId = {R.drawable.ic_store_24};
+
         boolean isEdit = existing != null;
         if (isEdit) {
             edtName.setText(existing.getName());
@@ -57,12 +105,75 @@ public final class ProductEditorHelper {
             edtDesc.setText(existing.getDescription());
             edtSpecs.setText(existing.getDetailedSpecs());
             switchInStock.setChecked(existing.isInStock());
+
+            selectedPath[0] = existing.getImagePath();
+            selectedBase64[0] = existing.getImageBase64();
+            selectedKey[0] = existing.getImageKey();
+            selectedResId[0] = existing.getImageResId();
+            ProductImageHelper.bindPreview(imgPreview, selectedPath[0], selectedBase64[0], selectedResId[0]);
         } else {
             edtSku.setText("TS-" + (System.currentTimeMillis() % 9000 + 1000));
             actvCategory.setText(CATEGORIES[0], false);
             edtWarranty.setText("12 tháng chính hãng");
             switchInStock.setChecked(true);
+            selectedResId[0] = DatabaseHelper.getImageForProduct("", CATEGORIES[0]);
+            selectedKey[0] = DatabaseHelper.getKeyForDrawable(selectedResId[0]);
+            ProductImageHelper.bindPreview(imgPreview, "", "", selectedResId[0]);
         }
+
+        if (imagePicker == null) {
+            btnPickGallery.setVisibility(View.GONE);
+            btnPickUrl.setVisibility(View.GONE);
+        } else {
+            btnPickGallery.setOnClickListener(v -> imagePicker.pickImage((savedPath, base64) -> {
+                selectedPath[0] = savedPath;
+                selectedBase64[0] = base64;
+                ProductImageHelper.bindPreview(imgPreview, savedPath, base64, selectedResId[0]);
+                Toast.makeText(context, "Đã chọn ảnh sản phẩm!", Toast.LENGTH_SHORT).show();
+            }));
+
+            btnPickUrl.setOnClickListener(v -> {
+                android.widget.EditText edtUrl = new android.widget.EditText(context);
+                edtUrl.setHint("https://example.com/anh-san-pham.jpg");
+                edtUrl.setSingleLine(true);
+                int pad = Math.round(16 * context.getResources().getDisplayMetrics().density);
+                android.widget.FrameLayout container = new android.widget.FrameLayout(context);
+                container.setPadding(pad, pad / 2, pad, 0);
+                container.addView(edtUrl);
+
+                new MaterialAlertDialogBuilder(context)
+                        .setTitle("Nhập đường dẫn ảnh (URL)")
+                        .setView(container)
+                        .setNegativeButton("Hủy", null)
+                        .setPositiveButton("Tải ảnh", (d, w) -> {
+                            String url = edtUrl.getText() != null ? edtUrl.getText().toString().trim() : "";
+                            if (url.isEmpty()) {
+                                Toast.makeText(context, "Vui lòng nhập link ảnh!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            imagePicker.loadFromUrl(url, (savedPath, base64) -> {
+                                selectedPath[0] = savedPath;
+                                selectedBase64[0] = base64;
+                                ProductImageHelper.bindPreview(imgPreview, savedPath, base64, selectedResId[0]);
+                                Toast.makeText(context, "Đã tải ảnh từ URL!", Toast.LENGTH_SHORT).show();
+                            });
+                        })
+                        .show();
+            });
+        }
+
+        btnPickPreset.setOnClickListener(v -> new MaterialAlertDialogBuilder(context)
+                .setTitle("Chọn ảnh mẫu sản phẩm")
+                .setItems(PRESET_LABELS, (d, which) -> {
+                    String key = PRESET_KEYS[which];
+                    selectedKey[0] = key;
+                    selectedResId[0] = DatabaseHelper.getImageByKeyOrProduct(key, "", "");
+                    selectedPath[0] = "";
+                    selectedBase64[0] = "";
+                    ProductImageHelper.bindPreview(imgPreview, "", "", selectedResId[0]);
+                })
+                .setNegativeButton("Đóng", null)
+                .show());
 
         switchInStock.setOnCheckedChangeListener((buttonView, isChecked) ->
                 switchInStock.setText(isChecked ? "Trạng thái: Còn hàng" : "Trạng thái: Hết hàng"));
@@ -92,6 +203,11 @@ public final class ProductEditorHelper {
                     if (specs.isEmpty()) specs = desc;
                     String formattedPrice = formatPriceInput(rawPrice);
 
+                    int finalResId = DatabaseHelper.getImageByKeyOrProduct(selectedKey[0], name, category);
+                    if (selectedKey[0] == null || selectedKey[0].isEmpty()) {
+                        selectedKey[0] = DatabaseHelper.getKeyForDrawable(finalResId);
+                    }
+
                     Product saved;
                     if (isEdit) {
                         existing.setName(name);
@@ -101,14 +217,20 @@ public final class ProductEditorHelper {
                         existing.setDescription(desc);
                         existing.setDetailedSpecs(specs);
                         existing.setInStock(inStock);
-                        existing.setImageResId(DatabaseHelper.getImageForProduct(name, category));
+                        existing.setImageResId(finalResId);
+                        existing.setImageKey(selectedKey[0]);
+                        existing.setImagePath(selectedPath[0]);
+                        existing.setImageBase64(selectedBase64[0]);
                         saved = existing;
                     } else {
                         saved = new Product(
                                 name, desc, formattedPrice,
-                                DatabaseHelper.getImageForProduct(name, category),
+                                finalResId,
                                 category, sku, warranty, specs, inStock
                         );
+                        saved.setImageKey(selectedKey[0]);
+                        saved.setImagePath(selectedPath[0]);
+                        saved.setImageBase64(selectedBase64[0]);
                         ProductListActivity.productList.add(saved);
                     }
 

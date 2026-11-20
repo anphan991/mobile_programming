@@ -46,14 +46,16 @@ public class ProductListActivity extends AppCompatActivity {
     private boolean isMenuOpen = false;
     private String currentFilter = "ALL";
     private String searchQuery = "";
+    private int sortMode = 0; // 0: Mặc định, 1: Giá tăng dần, 2: Giá giảm dần
+    private boolean onlyInStock = false;
 
-    private View layoutMenu, btnClearSearch;
+    private View layoutMenu, btnClearSearch, cardAdminQuickBar, layoutMenuAdminSection;
     private RecyclerView rvSpotlight;
     private MaterialButton btnToggleMenu, btnPrev, btnNext;
-    private TextView tvPage, tvProductCount, tvHeaderSubtitle, tvHeaderCartBadge, menuHome, tvEmptySearch, tvSectionHeading;
+    private TextView tvPage, tvProductCount, tvHeaderSubtitle, tvHeaderCartBadge, tvEmptySearch, tvSectionHeading;
+    private TextView menuSortPrice, menuInStockOnly;
     private EditText edtSearchProduct;
-    private TextView[] categoryMenuItems;
-    private Chip chipFilterAll, chipFilterMobile, chipFilterAccessory, chipFilterAudio;
+    private Chip chipFilterAll, chipFilterMobile, chipFilterTablet, chipFilterLaptop, chipFilterAccessory, chipFilterAudio, chipSortPrice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,19 +117,18 @@ public class ProductListActivity extends AppCompatActivity {
         tvProductCount = findViewById(R.id.tvProductCount);
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
         tvHeaderCartBadge = findViewById(R.id.tvHeaderCartBadge);
-        menuHome = findViewById(R.id.menuHome);
-
-        categoryMenuItems = new TextView[]{
-                menuHome,
-                findViewById(R.id.menuFilterMobile),
-                findViewById(R.id.menuFilterAccessory),
-                findViewById(R.id.menuFilterAudio)
-        };
+        cardAdminQuickBar = findViewById(R.id.cardAdminQuickBar);
+        layoutMenuAdminSection = findViewById(R.id.layoutMenuAdminSection);
+        menuSortPrice = findViewById(R.id.menuSortPrice);
+        menuInStockOnly = findViewById(R.id.menuInStockOnly);
 
         chipFilterAll = findViewById(R.id.chipFilterAll);
         chipFilterMobile = findViewById(R.id.chipFilterMobile);
+        chipFilterTablet = findViewById(R.id.chipFilterTablet);
+        chipFilterLaptop = findViewById(R.id.chipFilterLaptop);
         chipFilterAccessory = findViewById(R.id.chipFilterAccessory);
         chipFilterAudio = findViewById(R.id.chipFilterAudio);
+        chipSortPrice = findViewById(R.id.chipSortPrice);
 
         // Thanh cuộn ngang sản phẩm Flagship nổi bật
         rvSpotlight.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -177,11 +178,9 @@ public class ProductListActivity extends AppCompatActivity {
         if (tvBadge != null) tvBadge.setText("Tài khoản: " + user + (isAdmin ? " - Quản trị" : ""));
         if (tvAvatar != null) tvAvatar.setText(user.substring(0, 1).toUpperCase(Locale.ROOT));
 
-        View btnHeaderAdmin = findViewById(R.id.btnHeaderAdmin);
-        View menuAdminPanel = findViewById(R.id.menuAdminPanel);
         int adminVis = isAdmin ? View.VISIBLE : View.GONE;
-        if (btnHeaderAdmin != null) btnHeaderAdmin.setVisibility(adminVis);
-        if (menuAdminPanel != null) menuAdminPanel.setVisibility(adminVis);
+        if (cardAdminQuickBar != null) cardAdminQuickBar.setVisibility(adminVis);
+        if (layoutMenuAdminSection != null) layoutMenuAdminSection.setVisibility(adminVis);
     }
 
     private void setupMenuAndNavigation() {
@@ -189,10 +188,21 @@ public class ProductListActivity extends AppCompatActivity {
         findViewById(R.id.btnOpenCart).setOnClickListener(v -> openScreen(PaymentActivity.class));
         findViewById(R.id.menuCart).setOnClickListener(v -> openScreen(PaymentActivity.class));
         findViewById(R.id.menuOrders).setOnClickListener(v -> openScreen(OrderTrackingActivity.class));
-        View btnHeaderAdmin = findViewById(R.id.btnHeaderAdmin);
-        if (btnHeaderAdmin != null) btnHeaderAdmin.setOnClickListener(v -> openScreen(AdminDashboardActivity.class));
-        View menuAdminPanel = findViewById(R.id.menuAdminPanel);
-        if (menuAdminPanel != null) menuAdminPanel.setOnClickListener(v -> openScreen(AdminDashboardActivity.class));
+        if (cardAdminQuickBar != null) {
+            cardAdminQuickBar.setOnClickListener(v -> openAdminTab(AdminDashboardActivity.TAB_PRODUCTS));
+        }
+        View menuAdminProducts = findViewById(R.id.menuAdminProducts);
+        if (menuAdminProducts != null) {
+            menuAdminProducts.setOnClickListener(v -> openAdminTab(AdminDashboardActivity.TAB_PRODUCTS));
+        }
+        View menuAdminOrders = findViewById(R.id.menuAdminOrders);
+        if (menuAdminOrders != null) {
+            menuAdminOrders.setOnClickListener(v -> openAdminTab(AdminDashboardActivity.TAB_ORDERS));
+        }
+        View menuAdminUsers = findViewById(R.id.menuAdminUsers);
+        if (menuAdminUsers != null) {
+            menuAdminUsers.setOnClickListener(v -> openAdminTab(AdminDashboardActivity.TAB_USERS));
+        }
         findViewById(R.id.menuProfile).setOnClickListener(v -> openScreen(ProfileActivity.class));
         findViewById(R.id.btnHeaderProfile).setOnClickListener(v -> openScreen(ProfileActivity.class));
         View tvBadge = findViewById(R.id.tvMenuAccountBadge);
@@ -218,15 +228,37 @@ public class ProductListActivity extends AppCompatActivity {
             });
         }
 
-        menuHome.setOnClickListener(v -> applyCategoryFilter("ALL", "Danh mục sản phẩm", menuHome));
-        categoryMenuItems[1].setOnClickListener(v -> applyCategoryFilter("MOBILE", "Điện thoại & Tablet", categoryMenuItems[1]));
-        categoryMenuItems[2].setOnClickListener(v -> applyCategoryFilter("ACCESSORY", "Laptop & Phụ kiện", categoryMenuItems[2]));
-        categoryMenuItems[3].setOnClickListener(v -> applyCategoryFilter("AUDIO", "Thiết bị âm thanh", categoryMenuItems[3]));
+        if (menuSortPrice != null) {
+            menuSortPrice.setOnClickListener(v -> {
+                closeMenu();
+                cycleSortMode();
+            });
+        }
 
-        if (chipFilterAll != null) chipFilterAll.setOnClickListener(v -> applyCategoryFilter("ALL", "Danh mục sản phẩm", menuHome));
-        if (chipFilterMobile != null) chipFilterMobile.setOnClickListener(v -> applyCategoryFilter("MOBILE", "Điện thoại & Tablet", categoryMenuItems[1]));
-        if (chipFilterAccessory != null) chipFilterAccessory.setOnClickListener(v -> applyCategoryFilter("ACCESSORY", "Laptop & Phụ kiện", categoryMenuItems[2]));
-        if (chipFilterAudio != null) chipFilterAudio.setOnClickListener(v -> applyCategoryFilter("AUDIO", "Thiết bị âm thanh", categoryMenuItems[3]));
+        if (chipSortPrice != null) {
+            chipSortPrice.setOnClickListener(v -> cycleSortMode());
+        }
+
+        if (menuInStockOnly != null) {
+            menuInStockOnly.setOnClickListener(v -> {
+                onlyInStock = !onlyInStock;
+                menuInStockOnly.setText(onlyInStock
+                        ? "Tồn kho: Chỉ xem còn hàng"
+                        : "Tồn kho: Hiển thị tất cả");
+                menuInStockOnly.setTextColor(ContextCompat.getColor(this,
+                        onlyInStock ? R.color.primary_dark : R.color.ink));
+                menuInStockOnly.setTypeface(null, onlyInStock ? Typeface.BOLD : Typeface.NORMAL);
+                closeMenu();
+                refreshFilteredList();
+            });
+        }
+
+        if (chipFilterAll != null) chipFilterAll.setOnClickListener(v -> applyCategoryFilter("ALL", "Danh mục sản phẩm"));
+        if (chipFilterMobile != null) chipFilterMobile.setOnClickListener(v -> applyCategoryFilter("MOBILE", "Điện thoại"));
+        if (chipFilterTablet != null) chipFilterTablet.setOnClickListener(v -> applyCategoryFilter("TABLET", "Tablet"));
+        if (chipFilterLaptop != null) chipFilterLaptop.setOnClickListener(v -> applyCategoryFilter("LAPTOP", "Laptop"));
+        if (chipFilterAccessory != null) chipFilterAccessory.setOnClickListener(v -> applyCategoryFilter("ACCESSORY", "Phụ kiện công nghệ"));
+        if (chipFilterAudio != null) chipFilterAudio.setOnClickListener(v -> applyCategoryFilter("AUDIO", "Thiết bị âm thanh"));
 
         findViewById(R.id.menuInfo).setOnClickListener(v -> {
             closeMenu();
@@ -246,12 +278,19 @@ public class ProductListActivity extends AppCompatActivity {
         startActivity(new Intent(this, target));
     }
 
+    private void openAdminTab(int tab) {
+        closeMenu();
+        Intent intent = new Intent(this, AdminDashboardActivity.class);
+        intent.putExtra(AdminDashboardActivity.EXTRA_INITIAL_TAB, tab);
+        startActivity(intent);
+    }
+
     private void loadLocalData() {
         ArrayList<Product> dbProducts = new DatabaseHelper(this).getAllProducts();
         productList.clear();
         productList.addAll((dbProducts != null && !dbProducts.isEmpty()) ? dbProducts : createDefaultProducts());
         updateSpotlightCarousel();
-        applyCategoryFilter("ALL", "Danh mục sản phẩm", menuHome);
+        applyCategoryFilter("ALL", "Danh mục sản phẩm");
     }
 
     private void syncProductsWithFirestore() {
@@ -266,13 +305,25 @@ public class ProductListActivity extends AppCompatActivity {
                 }
                 batch.commit();
             } else {
+                DatabaseHelper dbHelper = new DatabaseHelper(this);
+                java.util.HashMap<String, String> localPaths = new java.util.HashMap<>();
+                for (Product local : dbHelper.getAllProducts()) {
+                    if (local.getImagePath() != null && !local.getImagePath().isEmpty()) {
+                        localPaths.put(local.getSku(), local.getImagePath());
+                    }
+                }
                 productList.clear();
                 for (QueryDocumentSnapshot doc : snapshots) {
-                    productList.add(Product.fromFirestore(doc));
+                    Product p = Product.fromFirestore(doc);
+                    String localPath = localPaths.get(p.getSku());
+                    if (localPath != null) {
+                        p.setImagePath(localPath);
+                    }
+                    productList.add(p);
                 }
                 updateSpotlightCarousel();
                 String currentSub = tvHeaderSubtitle != null ? tvHeaderSubtitle.getText().toString() : "Danh mục sản phẩm";
-                applyCategoryFilter(currentFilter, currentSub, getMenuViewForFilter(currentFilter));
+                applyCategoryFilter(currentFilter, currentSub);
             }
         });
     }
@@ -307,30 +358,46 @@ public class ProductListActivity extends AppCompatActivity {
         }
     }
 
-    private TextView getMenuViewForFilter(String filter) {
-        if ("MOBILE".equals(filter)) return categoryMenuItems[1];
-        if ("ACCESSORY".equals(filter)) return categoryMenuItems[2];
-        if ("AUDIO".equals(filter)) return categoryMenuItems[3];
-        return menuHome;
+    private void cycleSortMode() {
+        sortMode = (sortMode + 1) % 3;
+        String labelMenu;
+        String labelChip;
+        boolean active = sortMode != 0;
+        if (sortMode == 1) {
+            labelMenu = "Sắp xếp giá: Thấp đến cao";
+            labelChip = "Giá: Thấp - Cao";
+        } else if (sortMode == 2) {
+            labelMenu = "Sắp xếp giá: Cao đến thấp";
+            labelChip = "Giá: Cao - Thấp";
+        } else {
+            labelMenu = "Sắp xếp giá: Mặc định";
+            labelChip = "Giá: Mặc định";
+        }
+
+        if (menuSortPrice != null) {
+            menuSortPrice.setText(labelMenu);
+            menuSortPrice.setTextColor(ContextCompat.getColor(this, active ? R.color.primary_dark : R.color.ink));
+        }
+        if (chipSortPrice != null) {
+            chipSortPrice.setText(labelChip);
+            chipSortPrice.setChipBackgroundColorResource(active ? R.color.primary : R.color.surface);
+            chipSortPrice.setTextColor(ContextCompat.getColor(this, active ? R.color.white : R.color.ink));
+        }
+        refreshFilteredList();
     }
 
-    private void applyCategoryFilter(String filter, String subtitle, TextView selectedView) {
+    private void applyCategoryFilter(String filter, String subtitle) {
         closeMenu();
         currentFilter = filter;
         if (tvHeaderSubtitle != null) tvHeaderSubtitle.setText(subtitle);
         if (tvSectionHeading != null) tvSectionHeading.setText(subtitle);
 
-        for (TextView item : categoryMenuItems) {
-            if (item == null) continue;
-            boolean active = (item == selectedView);
-            item.setTextColor(ContextCompat.getColor(this, active ? R.color.primary_dark : R.color.ink));
-            item.setTypeface(null, active ? Typeface.BOLD : Typeface.NORMAL);
-        }
         if (chipFilterAll != null) chipFilterAll.setChecked("ALL".equals(filter));
         if (chipFilterMobile != null) chipFilterMobile.setChecked("MOBILE".equals(filter));
+        if (chipFilterTablet != null) chipFilterTablet.setChecked("TABLET".equals(filter));
+        if (chipFilterLaptop != null) chipFilterLaptop.setChecked("LAPTOP".equals(filter));
         if (chipFilterAccessory != null) chipFilterAccessory.setChecked("ACCESSORY".equals(filter));
         if (chipFilterAudio != null) chipFilterAudio.setChecked("AUDIO".equals(filter));
-        if (menuHome != null) menuHome.setText("Tất cả sản phẩm (" + productList.size() + ")");
 
         refreshFilteredList();
     }
@@ -338,9 +405,18 @@ public class ProductListActivity extends AppCompatActivity {
     private void refreshFilteredList() {
         filteredList.clear();
         for (Product p : productList) {
-            if (matchesCategory(p.getCategory(), currentFilter) && matchesSearch(p)) {
+            if (matchesCategory(p.getCategory(), currentFilter)
+                    && matchesSearch(p)
+                    && (!onlyInStock || p.isInStock())) {
                 filteredList.add(p);
             }
+        }
+        if (sortMode == 1) {
+            java.util.Collections.sort(filteredList, (a, b) ->
+                    Long.compare(CartManager.parsePrice(a.getPrice()), CartManager.parsePrice(b.getPrice())));
+        } else if (sortMode == 2) {
+            java.util.Collections.sort(filteredList, (a, b) ->
+                    Long.compare(CartManager.parsePrice(b.getPrice()), CartManager.parsePrice(a.getPrice())));
         }
         updateSpotlightVisibility();
         currentPage = 1;
@@ -356,9 +432,18 @@ public class ProductListActivity extends AppCompatActivity {
 
     private boolean matchesCategory(String cat, String filter) {
         if ("ALL".equals(filter) || cat == null) return true;
-        if ("MOBILE".equals(filter)) return "Điện thoại".equals(cat) || "Máy tính bảng".equals(cat);
+        if ("MOBILE".equals(filter)) return "Điện thoại".equals(cat);
+        if ("TABLET".equals(filter)) return "Máy tính bảng".equals(cat) || "Tablet".equalsIgnoreCase(cat);
+        if ("LAPTOP".equals(filter)) return "Máy tính xách tay".equals(cat) || "Laptop".equalsIgnoreCase(cat);
         if ("AUDIO".equals(filter)) return "Thiết bị âm thanh".equals(cat);
-        if ("ACCESSORY".equals(filter)) return !"Điện thoại".equals(cat) && !"Máy tính bảng".equals(cat) && !"Thiết bị âm thanh".equals(cat);
+        if ("ACCESSORY".equals(filter)) {
+            return !"Điện thoại".equals(cat)
+                    && !"Máy tính bảng".equals(cat)
+                    && !"Tablet".equalsIgnoreCase(cat)
+                    && !"Máy tính xách tay".equals(cat)
+                    && !"Laptop".equalsIgnoreCase(cat)
+                    && !"Thiết bị âm thanh".equals(cat);
+        }
         return true;
     }
 
@@ -423,7 +508,7 @@ public class ProductListActivity extends AppCompatActivity {
         list.add(new Product("Samsung Galaxy S24 Ultra", "512GB - Xám Titan - Tích hợp S-Pen", "28.990.000đ", R.drawable.img_samsung_s24, "Điện thoại", "TZ-S24U-512", "12 tháng chính hãng", "• Màn hình: Dynamic AMOLED 2X 6.8 inch QHD+, 120Hz\n• Vi xử lý: Snapdragon 8 Gen 3 for Galaxy\n• Camera sau: 200MP + Zoom quang học 5x 50MP\n• Tính năng: Khung viền Titan, bút S-Pen tích hợp sẵn", true));
         list.add(new Product("MacBook Air M3 13 inch", "RAM 16GB - SSD 512GB - Vỏ nhôm nguyên khối", "27.990.000đ", R.drawable.img_macbook_m3, "Máy tính xách tay", "TZ-MBA-M3-16", "12 tháng Apple VN", "• Màn hình: Liquid Retina 13.6 inch, độ sáng 500 nits, True Tone\n• Vi xử lý: Apple M3 (8 nhân CPU, 10 nhân GPU)\n• Bộ nhớ: RAM hợp nhất 16GB, ổ cứng SSD 512GB tốc độ cao\n• Thời lượng pin: Lên đến 18 giờ, sạc từ tính MagSafe 3", true));
         list.add(new Product("iPad Pro M4 11 inch", "256GB Wi-Fi - Màn hình Ultra Retina XDR", "26.490.000đ", R.drawable.img_ipad_pro_m4, "Máy tính bảng", "TZ-IPADP-M4", "12 tháng Apple VN", "• Màn hình: Tandem OLED Ultra Retina XDR 11 inch, ProMotion 120Hz\n• Vi xử lý: Chip Apple M4 hiệu năng đồ họa vượt trội\n• Thiết kế: Siêu mỏng 5.3 mm, trọng lượng chỉ 444g\n• Kết nối: Cổng Thunderbolt / USB 4, hỗ trợ Apple Pencil Pro", true));
-        list.add(new Product("Tai nghe AirPods Pro 2", "Hộp sạc MagSafe USB-C - Chống ồn chủ động", "5.690.000đ", R.drawable.img_airpods_pro, "Thiết bị âm thanh", "TZ-APP2-USBC", "12 tháng chính hãng", "• Chip xử lý âm thanh: Apple H2 cho âm thanh chi tiết\n• Chống ồn: Chủ động (ANC) gấp 2 lần và chế độ Xuyên âm thích ứng\n• Kháng bụi & nước: Chuẩn IP54 cho cả tai nghe và hộp sạc\n• Thời lượng pin: Nghe nhạc lên đến 30 giờ kèm hộp sạc", false));
+        list.add(new Product("Tai nghe AirPods Pro 2", "Hộp sạc MagSafe USB-C - Chống ồn chủ động", "5.690.000đ", R.drawable.img_airpods_pro, "Thiết bị âm thanh", "TZ-APP2-USBC", "12 tháng chính hãng", "• Chip xử lý âm thanh: Apple H2 cho âm thanh chi tiết\n• Chống ồn: Chủ động (ANC) gấp 2 lần và chế độ Xuyên âm thích ứng\n• Kháng bụi và nước: Chuẩn IP54 cho cả tai nghe và hộp sạc\n• Thời lượng pin: Nghe nhạc lên đến 30 giờ kèm hộp sạc", false));
         list.add(new Product("Tai nghe Sony WH-1000XM5", "Chống ồn đa micro - Pin 30 giờ - Hi-Res Audio", "7.490.000đ", R.drawable.img_sony_wh1000xm5, "Thiết bị âm thanh", "TZ-SN-XM5", "12 tháng Sony VN", "• Công nghệ chống ồn: Bộ xử lý V1 + QN1 kết hợp 8 micro thu âm\n• Màng loa: Sợi carbon 30mm thiết kế đặc biệt cho độ chi tiết cao\n• Kết nối: Bluetooth 5.2 đa điểm (2 thiết bị cùng lúc), hỗ trợ LDAC\n• Sạc nhanh: Sạc 3 phút qua chuẩn USB-PD cho 3 giờ sử dụng", false));
         list.add(new Product("Apple Watch Series 10", "Viền Nhôm GPS 42mm - Màn hình OLED góc rộng", "10.990.000đ", R.drawable.img_apple_watch_series10, "Đồng hồ thông minh", "TZ-AWS10-42", "12 tháng Apple VN", "• Màn hình: Retina Luôn Bật LTPO3 OLED góc rộng, sáng hơn 40%\n• Vi xử lý: SiP S10 64-bit lõi kép với Neural Engine 4 lõi\n• Theo dõi sức khỏe: Nhịp tim quang học, giấc ngủ, độ sâu nước\n• Kháng nước: Độ sâu 50m, sạc nhanh 80% pin trong 30 phút", true));
         list.add(new Product("Bàn phím cơ Keychron K8 Pro", "Khung nhôm CNC - Hotswap - Bluetooth 5.1", "2.490.000đ", R.drawable.img_keychron, "Phụ kiện", "TZ-KC-K8PRO", "12 tháng chính hãng", "• Thiết kế: Layout TKL (80%), khung viền nhôm nguyên khối chắc chắn\n• Tùy biến: Hỗ trợ QMK/VIA, mạch Hotswap 5 pin thay switch dễ dàng\n• Keycap: PBT Double-shot OSA profile chống bóng, lót foam tiêu âm\n• Kết nối: Không dây Bluetooth 5.1 (3 thiết bị) và có dây Type-C", false));

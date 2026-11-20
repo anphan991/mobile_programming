@@ -15,6 +15,95 @@
         android:paddingEnd="20dp"
         android:paddingBottom="8dp">
 
+        <!-- Chọn hình ảnh sản phẩm -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imgProdPreview"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_product_thumb"
+                android:contentDescription="Xem trước ảnh sản phẩm"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_store_24" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hình ảnh sản phẩm"
+                    android:textColor="@color/ink"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickPresetImage"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:minHeight="48dp"
+                    android:text="Chọn ảnh mẫu có sẵn"
+                    android:textAllCaps="false"
+                    android:textColor="@color/ink"
+                    android:textSize="12.5sp"
+                    app:backgroundTint="@color/surface"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/border_strong"
+                    app:strokeWidth="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickGalleryImage"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="Chọn từ máy"
+                android:textAllCaps="false"
+                android:textColor="@color/primary_dark"
+                android:textSize="12.5sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primary_soft"
+                app:cornerRadius="10dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickUrlImage"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="Dán link URL"
+                android:textAllCaps="false"
+                android:textColor="@color/primary_dark"
+                android:textSize="12.5sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primary_soft"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

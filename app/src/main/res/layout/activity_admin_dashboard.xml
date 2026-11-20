@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:text="Sản phẩm, Đơn hàng &amp; Người dùng"
+                android:text="Sản phẩm, Đơn hàng và Người dùng"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>

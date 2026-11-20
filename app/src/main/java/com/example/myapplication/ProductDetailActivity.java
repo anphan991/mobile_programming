@@ -23,6 +23,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvDetailStockBadge, tvDetailSku, tvDetailWarranty, tvDetailSpecs, tvDetailSubtitle, tvDetailCartBadge;
     private Button btnBackToList, btnDetailPrev, btnDetailNext, btnAddToCart, btnBuyNow, btnOpenCartDetail;
     private int currentIndex = 0;
+    private final ProductImagePicker imagePicker = new ProductImagePicker(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +99,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             btnEditProd.setOnClickListener(v -> {
                 if (isAdmin && currentIndex >= 0 && currentIndex < ProductListActivity.productList.size()) {
                     Product current = ProductListActivity.productList.get(currentIndex);
-                    ProductEditorHelper.showProductEditor(this, current, () -> showProduct(currentIndex));
+                    ProductEditorHelper.showProductEditor(this, imagePicker, current, () -> showProduct(currentIndex));
                 }
             });
         }
@@ -164,7 +165,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void showProduct(int index) {
         if (ProductListActivity.productList != null && index >= 0 && index < ProductListActivity.productList.size()) {
             Product product = ProductListActivity.productList.get(index);
-            imgDetailProduct.setImageResource(product.getImageResId());
+            ProductImageHelper.bindImage(imgDetailProduct, product);
             tvDetailName.setText(product.getName());
             tvDetailPrice.setText(product.getPrice());
             tvDetailDesc.setText(product.getDescription());
