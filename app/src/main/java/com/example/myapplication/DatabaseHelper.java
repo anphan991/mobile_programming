@@ -13,7 +13,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechStore.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,6 +53,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "username TEXT, sku TEXT, product_name TEXT, price TEXT, quantity INTEGER, "
                 + "UNIQUE(username, sku))");
 
+        //bảng đánh giá và bình luận sản phẩm
+        db.execSQL("CREATE TABLE IF NOT EXISTS product_reviews ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "sku TEXT, username TEXT, rating INTEGER, comment TEXT, "
+                + "created_at TEXT, verified INTEGER DEFAULT 1, helpful_count INTEGER DEFAULT 0)");
+
+        //bảng danh sách yêu thích (Wishlist) theo tài khoản
+        db.execSQL("CREATE TABLE IF NOT EXISTS wishlist ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "username TEXT, sku TEXT, created_at TEXT, "
+                + "UNIQUE(username, sku))");
+
         //admin / 123456
         ContentValues admin = new ContentValues();
         admin.put("username", "admin");
@@ -63,6 +75,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // Nạp sẵn 12 sản phẩm vào SQLite
         seedDefaultProducts(db);
+        // Nạp sẵn đánh giá mẫu cho các sản phẩm nếu bảng còn trống
+        seedDefaultReviews(db);
     }
 
     //tạo thêm bảng mới chưa tồn tại
@@ -623,5 +637,247 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (username != null && !username.trim().isEmpty()) {
             getWritableDatabase().delete("cart_items", "username = ?", new String[]{username});
         }
+    }
+
+    // ==================== HỆ THỐNG ĐÁNH GIÁ & BÌNH LUẬN SẢN PHẨM ====================
+
+    private void seedDefaultReviews(SQLiteDatabase db) {
+        Cursor c = db.rawQuery("SELECT COUNT(*) FROM product_reviews", null);
+        int count = 0;
+        if (c != null) {
+            if (c.moveToFirst()) count = c.getInt(0);
+            c.close();
+        }
+        if (count > 0) return;
+
+        insertSeedReview(db, "TZ-IP16PM-256", "minhkhoa.tech", 5, "[Hàng chính hãng • Hiệu năng đỉnh] Máy nguyên seal VN/A, màu Titan Tự Nhiên cực sang. Màn 6.9 inch 120Hz vuốt siêu mượt, camera zoom 5x nét căng!", "18/11/2026 14:20", 1, 14);
+        insertSeedReview(db, "TZ-IP16PM-256", "hoanganh_99", 5, "[Giao nhanh 2h • Đáng tiền] Đặt buổi sáng trưa đã nhận được hàng. Pin trâu hơn đời 15 Pro Max rõ rệt, chip A18 Pro mát rượi.", "19/11/2026 09:15", 1, 8);
+        insertSeedReview(db, "TZ-IP16PM-256", "tuananh.dev", 4, "[Đóng gói kỹ] Máy đẹp xuất sắc, nhân viên hỗ trợ kích hoạt bảo hành Apple VN đầy đủ.", "19/11/2026 19:40", 1, 5);
+
+        insertSeedReview(db, "TZ-S24U-512", "quocbao.sfan", 5, "[Hiệu năng đỉnh • Màn hình chống chói] Lớp phủ chống lóa Gorilla Armor trên S24 Ultra quá đỉnh, dùng ngoài trời nắng vẫn rõ mồn một. S-Pen ghi chú cực nhạy.", "17/11/2026 11:30", 1, 11);
+        insertSeedReview(db, "TZ-S24U-512", "linhchi.design", 5, "[Camera 200MP • Chính hãng] Chụp concert zoom 5x - 10x nét không đối thủ, Galaxy AI dịch trực tiếp rất tiện.", "18/11/2026 20:05", 1, 7);
+
+        insertSeedReview(db, "TZ-MBA-M3-16", "ducmanh.coder", 5, "[Bản 16GB RAM quá ngon • Pin trâu] Mở 30 tab Chrome + Android Studio vẫn mượt mà không ấm máy. Pin dùng làm việc cả ngày ở quán cafe không cần mang sạc.", "16/11/2026 16:45", 1, 19);
+        insertSeedReview(db, "TZ-MBA-M3-16", "thao.marketing", 5, "[Mỏng nhẹ • Sang trọng] Máy nhẹ chỉ hơn 1.2kg bỏ túi xách rất gọn, màn hình Liquid Retina màu chuẩn.", "18/11/2026 10:12", 1, 6);
+
+        insertSeedReview(db, "TZ-IPADP-M4", "huyart.studio", 5, "[Màn OLED kép tuyệt đẹp • Siêu mỏng] Cầm trên tay mỏng đến khó tin (5.3mm), màn Tandem OLED màu đen sâu thẳm, vẽ Procreate bằng Pencil Pro không độ trễ.", "17/11/2026 15:20", 1, 12);
+        insertSeedReview(db, "TZ-IPADP-M4", "ngocanh.media", 5, "[Hiệu năng M4 khủng] Render video 4K trên LumaFusion nhanh ngang laptop chuyên nghiệp.", "19/11/2026 08:50", 1, 4);
+
+        insertSeedReview(db, "TZ-APP2-USBC", "khanhvy.music", 5, "[Chống ồn đỉnh cao • Cổng USB-C tiện] Bật ANC lên là tách biệt hoàn toàn tiếng ồn ngoài đường. Chế độ xuyên âm nghe tự nhiên như không đeo tai nghe.", "15/11/2026 13:10", 1, 9);
+        insertSeedReview(db, "TZ-APP2-USBC", "nam.nguyen", 4, "[Âm bass chắc • Kết nối mượt] Dùng chung hệ sinh thái Apple chuyển đổi giữa iPhone và MacBook cực nhanh.", "18/11/2026 17:30", 1, 3);
+
+        insertSeedReview(db, "TZ-SN-XM5", "audiophile.vn", 5, "[Vua chống ồn • Đeo êm tai] Đệm tai da mềm đeo 4 tiếng liên tục không đau tai, chất âm LDAC chi tiết và ấm áp.", "16/11/2026 21:00", 1, 10);
+        insertSeedReview(db, "TZ-SN-XM5", "hoangnam.it", 5, "[Micro đàm thoại rõ] Họp online ở quán đông người mà đồng nghiệp không nghe thấy tạp âm xung quanh.", "19/11/2026 11:05", 1, 6);
+
+        insertSeedReview(db, "TZ-AWS10-42", "phuongthao.fit", 5, "[Màn rộng • Sạc siêu nhanh] Thiết kế mỏng hơn hẳn đời trước, đeo ngủ theo dõi sức khỏe rất thoải mái. Sạc 30 phút đã đầy 80% pin.", "18/11/2026 07:45", 1, 8);
+        insertSeedReview(db, "TZ-KC-K8PRO", "vanhung.mech", 5, "[Gõ đầm tay • Khung nhôm CNC] Đã lót sẵn foam tiêu âm từ hãng, tiếng gõ thocky rất đã, kết nối Bluetooth 3 thiết bị chuyển mượt.", "17/11/2026 22:15", 1, 13);
+        insertSeedReview(db, "TZ-LG-MX3S", "minhtri.pm", 5, "[Chuột văn phòng số 1 • Click siêu êm] Con lăn vô cực MagSpeed cuộn file Excel hàng ngàn dòng cực sướng, nút Quiet Click bấm đêm không ồn.", "16/11/2026 14:00", 1, 16);
+        insertSeedReview(db, "TZ-MS-EMB2", "baolong.chill", 5, "[Thiết kế cổ điển • Pin 30h] Để decor bàn làm việc cực chất, âm thanh 360 độ lan tỏa đều khắp phòng.", "18/11/2026 18:20", 1, 7);
+        insertSeedReview(db, "TZ-MS-MJ4", "lanhuong. acoustic", 5, "[Pin 80 giờ vô địch] Dùng cả tháng mới phải sạc 1 lần, nghe nhạc Rock và Acoustic rất hợp.", "17/11/2026 12:40", 1, 6);
+        insertSeedReview(db, "TZ-JBL-CHG5", "thanhdat.travel", 5, "[Bass uy lực • Chống nước IP67] Mang đi dã ngoại ngoài trời âm lượng lớn, bass đánh chắc khỏe, có cổng sạc ngược cho điện thoại luôn.", "19/11/2026 10:30", 1, 9);
+    }
+
+    private void insertSeedReview(SQLiteDatabase db, String sku, String username, int rating,
+                                  String comment, String createdAt, int verified, int helpful) {
+        ContentValues cv = new ContentValues();
+        cv.put("sku", sku);
+        cv.put("username", username);
+        cv.put("rating", rating);
+        cv.put("comment", comment);
+        cv.put("created_at", createdAt);
+        cv.put("verified", verified);
+        cv.put("helpful_count", helpful);
+        db.insert("product_reviews", null, cv);
+    }
+
+    public java.util.List<ProductReview> getReviewsBySku(String sku) {
+        java.util.List<ProductReview> list = new java.util.ArrayList<>();
+        if (sku == null || sku.trim().isEmpty()) return list;
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT id, sku, username, rating, comment, created_at, verified, helpful_count "
+                        + "FROM product_reviews WHERE sku = ? ORDER BY id DESC",
+                new String[]{sku.trim()});
+        if (c != null) {
+            while (c.moveToNext()) {
+                list.add(new ProductReview(
+                        c.getInt(0),
+                        c.getString(1),
+                        c.getString(2),
+                        c.getInt(3),
+                        c.getString(4),
+                        c.getString(5),
+                        c.getInt(6) == 1,
+                        c.getInt(7)
+                ));
+            }
+            c.close();
+        }
+        return list;
+    }
+
+    public long addProductReview(String sku, String username, int rating, String comment, boolean verified) {
+        if (sku == null || sku.trim().isEmpty() || comment == null || comment.trim().isEmpty()) {
+            return -1;
+        }
+        ContentValues cv = new ContentValues();
+        cv.put("sku", sku.trim());
+        cv.put("username", (username == null || username.trim().isEmpty()) ? "Khách hàng" : username.trim());
+        cv.put("rating", Math.max(1, Math.min(5, rating)));
+        cv.put("comment", comment.trim());
+        cv.put("created_at", new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date()));
+        cv.put("verified", verified ? 1 : 0);
+        cv.put("helpful_count", 0);
+        return getWritableDatabase().insert("product_reviews", null, cv);
+    }
+
+    public void incrementReviewHelpful(int reviewId) {
+        getWritableDatabase().execSQL(
+                "UPDATE product_reviews SET helpful_count = helpful_count + 1 WHERE id = ?",
+                new Object[]{reviewId});
+    }
+
+    public boolean deleteReview(int reviewId) {
+        return getWritableDatabase().delete("product_reviews", "id = ?", new String[]{String.valueOf(reviewId)}) > 0;
+    }
+
+    public float getAverageRating(String sku) {
+        if (sku == null || sku.trim().isEmpty()) return 4.9f;
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT AVG(rating), COUNT(*) FROM product_reviews WHERE sku = ?",
+                new String[]{sku.trim()});
+        float avg = 4.9f;
+        if (c != null) {
+            if (c.moveToFirst() && c.getInt(1) > 0) {
+                avg = c.getFloat(0);
+            }
+            c.close();
+        }
+        return Math.round(avg * 10f) / 10f;
+    }
+
+    public int getReviewCount(String sku) {
+        if (sku == null || sku.trim().isEmpty()) return 0;
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT COUNT(*) FROM product_reviews WHERE sku = ?",
+                new String[]{sku.trim()});
+        int count = 0;
+        if (c != null) {
+            if (c.moveToFirst()) count = c.getInt(0);
+            c.close();
+        }
+        return count;
+    }
+
+    public int[] getRatingBreakdown(String sku) {
+        int[] counts = new int[6]; // index 1..5
+        if (sku == null || sku.trim().isEmpty()) return counts;
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT rating, COUNT(*) FROM product_reviews WHERE sku = ? GROUP BY rating",
+                new String[]{sku.trim()});
+        if (c != null) {
+            while (c.moveToNext()) {
+                int r = c.getInt(0);
+                if (r >= 1 && r <= 5) {
+                    counts[r] = c.getInt(1);
+                }
+            }
+            c.close();
+        }
+        return counts;
+    }
+
+    public boolean hasUserPurchasedProduct(String username, String sku) {
+        if (username == null || username.trim().isEmpty() || sku == null || sku.trim().isEmpty()) {
+            return false;
+        }
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT items_raw FROM orders WHERE LOWER(username) = LOWER(?) AND status_step != -1",
+                new String[]{username.trim()});
+        boolean purchased = false;
+        if (c != null) {
+            while (c.moveToNext()) {
+                String raw = c.getString(0);
+                if (raw != null && raw.contains(sku.trim())) {
+                    purchased = true;
+                    break;
+                }
+            }
+            c.close();
+        }
+        return purchased;
+    }
+
+    // ==================== DANH SÁCH YÊU THÍCH (WISHLIST) ====================
+
+    public boolean isWishlisted(String username, String sku) {
+        if (username == null || username.trim().isEmpty() || sku == null || sku.trim().isEmpty()) {
+            return false;
+        }
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT id FROM wishlist WHERE LOWER(username) = LOWER(?) AND sku = ? LIMIT 1",
+                new String[]{username.trim(), sku.trim()});
+        boolean exists = c != null && c.moveToFirst();
+        if (c != null) c.close();
+        return exists;
+    }
+
+    public boolean toggleWishlist(String username, String sku) {
+        if (username == null || username.trim().isEmpty() || sku == null || sku.trim().isEmpty()) {
+            return false;
+        }
+        String cleanUser = username.trim();
+        String cleanSku = sku.trim();
+        if (isWishlisted(cleanUser, cleanSku)) {
+            getWritableDatabase().delete("wishlist", "LOWER(username) = LOWER(?) AND sku = ?",
+                    new String[]{cleanUser, cleanSku});
+            return false;
+        } else {
+            ContentValues cv = new ContentValues();
+            cv.put("username", cleanUser);
+            cv.put("sku", cleanSku);
+            cv.put("created_at", new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date()));
+            getWritableDatabase().insertWithOnConflict("wishlist", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+            return true;
+        }
+    }
+
+    public java.util.Set<String> getWishlistedSkus(String username) {
+        java.util.Set<String> set = new java.util.HashSet<>();
+        if (username == null || username.trim().isEmpty()) return set;
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT sku FROM wishlist WHERE LOWER(username) = LOWER(?)",
+                new String[]{username.trim()});
+        if (c != null) {
+            while (c.moveToNext()) {
+                set.add(c.getString(0));
+            }
+            c.close();
+        }
+        return set;
+    }
+
+    // ==================== CHỈ SỐ THƯƠNG MẠI ĐIỆN TỬ (SALE / ĐÃ BÁN) ====================
+
+    public static int getDiscountPercent(Product product) {
+        if (product == null || product.getSku() == null) return 10;
+        int hash = Math.abs(product.getSku().hashCode());
+        int[] presets = new int[]{10, 12, 15, 8, 14, 18, 11};
+        return presets[hash % presets.length];
+    }
+
+    public static String getOriginalPriceFormatted(Product product) {
+        if (product == null) return "";
+        long current = CartManager.parsePrice(product.getPrice());
+        if (current <= 0) return "";
+        int discount = getDiscountPercent(product);
+        long original = Math.round((current * 100.0) / (100 - discount) / 10000.0) * 10000L;
+        return CartManager.formatPrice(original);
+    }
+
+    public static String getSoldCountText(Product product) {
+        if (product == null || product.getSku() == null) return "Đã bán 85";
+        int hash = Math.abs(product.getSku().hashCode());
+        int sold = 48 + (hash % 240);
+        return "Đã bán " + sold;
     }
 }

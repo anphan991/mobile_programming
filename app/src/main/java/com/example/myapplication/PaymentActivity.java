@@ -36,10 +36,12 @@ public class PaymentActivity extends AppCompatActivity {
 
     private EditText edtReceiverName, edtReceiverPhone, edtReceiverAddress, edtReceiverNote;
     private LinearLayout layoutCartItems, layoutPayCOD, layoutPayBank;
-    private TextView tvCartItemCount, tvEmptyCartNotice, tvOrderSubtotal, tvOrderTotal;
+    private View layoutVoucherPicker;
+    private TextView tvCartItemCount, tvEmptyCartNotice, tvOrderSubtotal, tvOrderDiscount, tvOrderTotal, tvVoucherStatus, tvVoucherActionPill;
     private RadioButton rbPayCOD, rbPayBank;
     private MaterialButton btnConfirmOrder;
     private String selectedPaymentMethod = "Tiền mặt khi nhận hàng (COD)";
+    private String activeVoucherCode = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +71,20 @@ public class PaymentActivity extends AppCompatActivity {
         tvCartItemCount = findViewById(R.id.tvCartItemCount);
         tvEmptyCartNotice = findViewById(R.id.tvEmptyCartNotice);
         tvOrderSubtotal = findViewById(R.id.tvOrderSubtotal);
+        tvOrderDiscount = findViewById(R.id.tvOrderDiscount);
         tvOrderTotal = findViewById(R.id.tvOrderTotal);
+        layoutVoucherPicker = findViewById(R.id.layoutVoucherPicker);
+        tvVoucherStatus = findViewById(R.id.tvVoucherStatus);
+        tvVoucherActionPill = findViewById(R.id.tvVoucherActionPill);
 
         layoutPayCOD = findViewById(R.id.layoutPayCOD);
         layoutPayBank = findViewById(R.id.layoutPayBank);
         rbPayCOD = findViewById(R.id.rbPayCOD);
         rbPayBank = findViewById(R.id.rbPayBank);
         btnConfirmOrder = findViewById(R.id.btnConfirmOrder);
+
+        UiMotion.bindTouchScale(btnBack, btnViewOrders, layoutPayCOD, layoutPayBank, layoutVoucherPicker, btnConfirmOrder);
+        UiMotion.animateEntry(findViewById(R.id.cardPaymentContent), btnConfirmOrder);
 
         btnBack.setOnClickListener(v -> finish());
         if (btnViewOrders != null) {
@@ -88,6 +97,10 @@ public class PaymentActivity extends AppCompatActivity {
         // Điền sẵn tên người dùng hiện tại hoặc thông tin từ đơn đặt lại
         SharedPreferences session = getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUser = session.getString("CURRENT_USER", "admin");
+        activeVoucherCode = session.getString("SAVED_VOUCHER", "TECH500K");
+        if (layoutVoucherPicker != null) {
+            layoutVoucherPicker.setOnClickListener(v -> showVoucherPickerDialog());
+        }
         String prefillName = getIntent().getStringExtra(EXTRA_PREFILL_NAME);
         String prefillPhone = getIntent().getStringExtra(EXTRA_PREFILL_PHONE);
         String prefillAddress = getIntent().getStringExtra(EXTRA_PREFILL_ADDRESS);
@@ -130,6 +143,7 @@ public class PaymentActivity extends AppCompatActivity {
         if (isEmpty) {
             tvCartItemCount.setText("0 sản phẩm");
             tvOrderSubtotal.setText("0đ");
+            if (tvOrderDiscount != null) tvOrderDiscount.setText("-0đ");
             tvOrderTotal.setText("0đ");
             btnConfirmOrder.setText("Đơn hàng rỗng");
             return;
@@ -166,15 +180,81 @@ public class PaymentActivity extends AppCompatActivity {
             layoutCartItems.addView(v);
         }
 
-        long totalMoney = CartManager.getTotalPrice();
-        // Cập nhật tổng tiền và nhãn nút xác nhận
-        String formatted = CartManager.formatPrice(totalMoney);
+        long subtotalMoney = CartManager.getTotalPrice();
+        long discountMoney = calculateVoucherDiscount(subtotalMoney, activeVoucherCode);
+        long finalTotalMoney = Math.max(0, subtotalMoney - discountMoney);
+
+        String subtotalFormatted = CartManager.formatPrice(subtotalMoney);
+        String discountFormatted = "-" + CartManager.formatPrice(discountMoney);
+        String finalFormatted = CartManager.formatPrice(finalTotalMoney);
         int totalItems = CartManager.getTotalItemCount();
 
         tvCartItemCount.setText(totalItems + " sản phẩm");
-        tvOrderSubtotal.setText(formatted);
-        tvOrderTotal.setText(formatted);
-        btnConfirmOrder.setText("Xác nhận thanh toán (" + formatted + ")");
+        tvOrderSubtotal.setText(subtotalFormatted);
+        if (tvOrderDiscount != null) {
+            tvOrderDiscount.setText(discountFormatted);
+        }
+        updateVoucherBannerUi(discountMoney);
+        tvOrderTotal.setText(finalFormatted);
+        btnConfirmOrder.setText("Xác nhận thanh toán (" + finalFormatted + ")");
+    }
+
+    private long calculateVoucherDiscount(long subtotal, String code) {
+        if (subtotal <= 0 || code == null || code.isEmpty()) return 0;
+        if ("TECH500K".equalsIgnoreCase(code)) {
+            return subtotal >= 10000000L ? 500000L : 200000L;
+        }
+        if ("NEWMEMBER".equalsIgnoreCase(code)) {
+            return Math.min(1000000L, Math.round(subtotal * 0.05 / 1000.0) * 1000L);
+        }
+        if ("FREESHIP2H".equalsIgnoreCase(code)) {
+            return 150000L;
+        }
+        return 0;
+    }
+
+    private void updateVoucherBannerUi(long discountMoney) {
+        if (tvVoucherStatus == null || tvVoucherActionPill == null) return;
+        if (activeVoucherCode == null || activeVoucherCode.isEmpty() || discountMoney <= 0) {
+            tvVoucherStatus.setText("Nhấn để chọn mã giảm đến 1.000.000đ");
+            tvVoucherActionPill.setText("Chọn mã");
+        } else {
+            tvVoucherStatus.setText("Đã áp dụng " + activeVoucherCode + " • Giảm " + CartManager.formatPrice(discountMoney));
+            tvVoucherActionPill.setText("Đổi mã");
+        }
+    }
+
+    private void showVoucherPickerDialog() {
+        String[] options = new String[]{
+                "TECH500K — Giảm 500.000đ (Đơn từ 10Tr, dưới 10Tr giảm 200K)",
+                "NEWMEMBER — Giảm 5% tối đa 1.000.000đ cho thành viên",
+                "FREESHIP2H — Ưu đãi giao hỏa tốc 2h giảm 150.000đ",
+                "Không sử dụng mã giảm giá"
+        };
+        String[] codes = new String[]{"TECH500K", "NEWMEMBER", "FREESHIP2H", ""};
+        int checked = 0;
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i].equalsIgnoreCase(activeVoucherCode)) {
+                checked = i;
+                break;
+            }
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Chọn Mã Ưu Đãi TechZone")
+                .setSingleChoiceItems(options, checked, (dialog, which) -> {
+                    activeVoucherCode = codes[which];
+                    getSharedPreferences("UserSession", MODE_PRIVATE)
+                            .edit()
+                            .putString("SAVED_VOUCHER", activeVoucherCode)
+                            .apply();
+                    dialog.dismiss();
+                    renderCartItems();
+                    if (!activeVoucherCode.isEmpty()) {
+                        Toast.makeText(this, "Đã áp dụng mã " + activeVoucherCode + "!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Đóng", null)
+                .show();
     }
 
     // Thiết lập sự kiện chọn hình thức thanh toán
@@ -214,7 +294,10 @@ public class PaymentActivity extends AppCompatActivity {
             return;
         }
 
-        String totalFormatted = CartManager.formatPrice(CartManager.getTotalPrice());
+        long subtotalMoney = CartManager.getTotalPrice();
+        long discountMoney = calculateVoucherDiscount(subtotalMoney, activeVoucherCode);
+        long finalTotalMoney = Math.max(0, subtotalMoney - discountMoney);
+        String totalFormatted = CartManager.formatPrice(finalTotalMoney);
         int totalItems = CartManager.getTotalItemCount();
 
         StringBuilder itemsBuilder = new StringBuilder();

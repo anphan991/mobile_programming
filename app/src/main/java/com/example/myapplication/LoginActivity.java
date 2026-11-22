@@ -74,6 +74,9 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
 
+        UiMotion.bindTouchScale(btnLogin, tvGoToRegister);
+        UiMotion.animateEntry(findViewById(R.id.cardAuthForm), findViewById(R.id.layoutTrustBadges));
+
         // Tự động xóa thông báo lỗi khi người dùng gõ lại
         TextWatcher clearErrorWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

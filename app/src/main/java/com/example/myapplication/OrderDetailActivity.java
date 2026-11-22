@@ -106,6 +106,15 @@ public class OrderDetailActivity extends AppCompatActivity {
         btnAdminSelectStatus = findViewById(R.id.btnAdminSelectStatus);
         btnCancelOrder = findViewById(R.id.btnCancelOrder);
         btnReorder = findViewById(R.id.btnReorder);
+
+        UiMotion.bindTouchScale(
+                findViewById(R.id.btnBack),
+                findViewById(R.id.btnAllOrdersList),
+                btnAdminAdvanceStatus,
+                btnAdminSelectStatus,
+                btnCancelOrder,
+                btnReorder
+        );
     }
 
     private void setupListeners() {

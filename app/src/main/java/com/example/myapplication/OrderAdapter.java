@@ -115,6 +115,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 listener.onOrderClick(order);
             }
         });
+        UiMotion.bindTouchScale(holder.itemView);
     }
 
     @Override

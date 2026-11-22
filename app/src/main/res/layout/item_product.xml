@@ -9,7 +9,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="18dp"
+    app:cardCornerRadius="22dp"
     app:cardElevation="2dp"
     app:strokeColor="@color/border"
     app:strokeWidth="1dp"
@@ -19,38 +19,103 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="11dp">
 
-        <!-- Khung ảnh sản phẩm + badge danh mục & trạng thái -->
+        <!-- Khung ảnh sản phẩm Bento + Discount badge + Wishlist Heart + Trạng thái -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="122dp">
+            android:layout_height="134dp"
+            android:background="@drawable/bg_product_hero_frame">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgProduct"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/surface_subtle"
                 android:contentDescription="Ảnh sản phẩm"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.RoundedImage" />
 
-            <TextView
-                android:id="@+id/tvProductCategory"
+            <!-- Cụm huy hiệu góc trên trái: % Giảm giá + Danh mục -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_margin="6dp"
-                android:background="@drawable/bg_badge_primary"
-                android:ellipsize="end"
-                android:maxLines="1"
+                android:layout_margin="7dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvProductDiscount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_discount_tag"
+                    android:paddingStart="6dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="6dp"
+                    android:paddingBottom="2dp"
+                    android:text="-12%"
+                    android:textColor="@color/white"
+                    android:textSize="8.5sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProductCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/bg_badge_primary"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingStart="7dp"
+                    android:paddingTop="2dp"
+                    android:paddingEnd="7dp"
+                    android:paddingBottom="2dp"
+                    android:text="ĐIỆN THOẠI"
+                    android:textAllCaps="true"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="8sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Nút Yêu thích (Wishlist Heart) góc trên phải -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnItemWishlist"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="7dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="#E6FFFFFF"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="1dp"
+                app:strokeColor="@color/border"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:id="@+id/imgItemWishlist"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Yêu thích"
+                    android:src="@drawable/ic_heart_outline_24" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nhãn trả góp 0% góc dưới trái -->
+            <TextView
+                android:id="@+id/tvItemPromoTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="7dp"
+                android:background="#D90F172A"
                 android:paddingStart="7dp"
                 android:paddingTop="2dp"
                 android:paddingEnd="7dp"
                 android:paddingBottom="2dp"
-                android:text="ĐIỆN THOẠI"
-                android:textAllCaps="true"
-                android:textColor="@color/primary_dark"
+                android:text="Trả góp 0%"
+                android:textColor="#67E8F9"
                 android:textSize="8.5sp"
                 android:textStyle="bold" />
 
@@ -59,12 +124,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="6dp"
+                android:layout_margin="7dp"
                 android:background="@drawable/bg_badge_danger"
-                android:paddingStart="7dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="7dp"
-                android:paddingBottom="2dp"
+                android:paddingStart="8dp"
+                android:paddingTop="2.5dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="2.5dp"
                 android:text="Hết hàng"
                 android:textColor="@color/danger"
                 android:textSize="9sp"
@@ -77,8 +142,9 @@
             android:id="@+id/tvProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="9dp"
             android:ellipsize="end"
+            android:lineSpacingExtra="1dp"
             android:maxLines="2"
             android:minLines="2"
             android:text="Tên sản phẩm"
@@ -97,25 +163,86 @@
             android:textColor="@color/text_secondary"
             android:textSize="11sp" />
 
-        <!-- Giá bán & nút + thêm nhanh vào giỏ -->
+        <!-- Dòng Social Proof: Điểm sao đánh giá + Lượt bán -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <ImageView
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_star_filled_24" />
+
             <TextView
-                android:id="@+id/tvProductPrice"
+                android:id="@+id/tvProductRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:text="4.9 (3)"
+                android:textColor="@color/ink"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="•"
+                android:textColor="@color/text_tertiary"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tvProductSold"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="0đ"
-                android:textColor="@color/primary_dark"
-                android:textSize="13.5sp"
-                android:textStyle="bold" />
+                android:text="Đã bán 142"
+                android:textColor="@color/text_secondary"
+                android:textSize="10.5sp" />
+        </LinearLayout>
+
+        <!-- Giá bán (kèm giá gốc gạch ngang) & nút + thêm nhanh vào giỏ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvProductPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="0đ"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProductOldPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="0đ"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="10.5sp" />
+            </LinearLayout>
 
             <FrameLayout
                 android:id="@+id/btnQuickAddCart"
@@ -128,12 +255,12 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardQuickAddBg"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
                     android:layout_gravity="center"
                     app:cardBackgroundColor="@color/primary"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
                     app:strokeWidth="0dp">
 
                     <ImageView

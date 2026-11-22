@@ -95,6 +95,15 @@ public class OrderTrackingActivity extends AppCompatActivity {
         btnFilterInProgress = findViewById(R.id.btnFilterInProgress);
         btnFilterDelivered = findViewById(R.id.btnFilterDelivered);
         btnFilterCancelled = findViewById(R.id.btnFilterCancelled);
+
+        UiMotion.bindTouchScale(
+                findViewById(R.id.btnBack),
+                findViewById(R.id.btnGoShopping),
+                btnFilterAll,
+                btnFilterInProgress,
+                btnFilterDelivered,
+                btnFilterCancelled
+        );
     }
 
     private void setupRecyclerView() {
@@ -128,6 +137,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
         currentFilter = filter;
         updateFilterButtonsUi();
         applyFilter();
+        UiMotion.animateContentSwitch(rvOrders);
     }
 
     private void updateFilterButtonsUi() {

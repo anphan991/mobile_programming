@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/surface_subtle"
-    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="#F8FAFC"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:strokeColor="@color/border"
     app:strokeWidth="1dp"
@@ -17,16 +17,17 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="11dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imgCartItem"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:background="@drawable/bg_product_thumb"
             android:contentDescription="Ảnh sản phẩm"
             android:padding="4dp"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.RoundedImage" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -50,28 +51,29 @@
                 android:id="@+id/tvCartItemPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:text="34.990.000đ"
-                android:textColor="@color/primary"
-                android:textSize="13sp"
+                android:textColor="@color/primary_dark"
+                android:textSize="13.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Bộ điều khiển số lượng -->
+        <!-- Bộ điều khiển số lượng Pill -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="38dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_bottom_bar"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp">
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp">
 
             <TextView
                 android:id="@+id/btnCartMinus"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
@@ -82,18 +84,19 @@
 
             <TextView
                 android:id="@+id/tvCartQuantity"
-                android:layout_width="28dp"
+                android:layout_width="30dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="1"
                 android:textColor="@color/ink"
-                android:textSize="13.5sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/btnCartPlus"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"

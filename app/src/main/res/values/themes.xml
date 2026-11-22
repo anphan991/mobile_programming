@@ -1,11 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme (Modern Bento Tech Store) -->
     <style name="Base.Theme.MyApplication" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/primary_soft</item>
         <item name="colorOnPrimaryContainer">@color/primary_dark</item>
-        <item name="colorSecondaryContainer">@color/primary_soft</item>
+        <item name="colorSecondary">@color/accent_indigo</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/accent_indigo_soft</item>
         <item name="colorOnSecondaryContainer">@color/primary_dark</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/ink</item>
@@ -25,6 +27,11 @@
 
     <style name="ShapeAppearance.App.RoundedImage" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">12dp</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SpotlightImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
     </style>
 </resources>

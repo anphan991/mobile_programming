@@ -16,10 +16,10 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardStepDot"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="13dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -30,7 +30,7 @@
                 android:gravity="center"
                 android:text="1"
                 android:textColor="@color/white"
-                android:textSize="11sp"
+                android:textSize="11.5sp"
                 android:textStyle="bold" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -73,9 +73,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_badge_primary"
-                android:paddingStart="8dp"
+                android:paddingStart="9dp"
                 android:paddingTop="3dp"
-                android:paddingEnd="8dp"
+                android:paddingEnd="9dp"
                 android:paddingBottom="3dp"
                 android:text="Hiện tại"
                 android:textColor="@color/primary_dark"

@@ -55,6 +55,9 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         tvBackToLogin = findViewById(R.id.tvBackToLogin);
 
+        UiMotion.bindTouchScale(btnRegister, tvBackToLogin);
+        UiMotion.animateEntry(findViewById(R.id.cardRegisterForm));
+
         // Quay lại màn hình đăng nhập
         tvBackToLogin.setOnClickListener(v -> finish());
 

@@ -16,7 +16,7 @@
         android:orientation="vertical"
         android:paddingBottom="24dp">
 
-        <!-- Header Obsidian-Indigo -->
+        <!-- Hero Header Midnight-Indigo-Electric Blue -->
         <LinearLayout
             android:id="@+id/authHeader"
             android:layout_width="match_parent"
@@ -27,16 +27,16 @@
             android:paddingStart="24dp"
             android:paddingTop="32dp"
             android:paddingEnd="24dp"
-            android:paddingBottom="72dp">
+            android:paddingBottom="74dp">
 
             <com.google.android.material.card.MaterialCardView
-                android:layout_width="58dp"
-                android:layout_height="58dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 app:cardBackgroundColor="#24FFFFFF"
-                app:cardCornerRadius="18dp"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#4DFFFFFF"
-                app:strokeWidth="1dp">
+                app:strokeColor="#59FFFFFF"
+                app:strokeWidth="1.2dp">
 
                 <ImageView
                     android:layout_width="28dp"
@@ -46,20 +46,35 @@
                     android:src="@drawable/ic_store_24" />
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="#2606B6D4"
-                android:letterSpacing="0.12"
+                android:background="@drawable/bg_badge_glass_cyan"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:paddingStart="12dp"
                 android:paddingTop="4dp"
                 android:paddingEnd="12dp"
-                android:paddingBottom="4dp"
-                android:text="THÀNH VIÊN MỚI"
-                android:textColor="#67E8F9"
-                android:textSize="10.5sp"
-                android:textStyle="bold" />
+                android:paddingBottom="4dp">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_sparkles_24"
+                    app:tint="#67E8F9" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:letterSpacing="0.11"
+                    android:text="THÀNH VIÊN MỚI"
+                    android:textColor="#67E8F9"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -75,20 +90,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:gravity="center"
-                android:text="Lưu giỏ hàng và đồng bộ đơn mua hàng mọi lúc"
-                android:textColor="#BFDBFE"
-                android:textSize="13sp" />
+                android:text="Lưu giỏ hàng và theo dõi tiến trình đơn mua mọi lúc"
+                android:textColor="#DBEAFE"
+                android:textSize="13.5sp" />
         </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRegisterForm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="22dp"
-            android:layout_marginTop="-50dp"
-            android:layout_marginEnd="22dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="-52dp"
+            android:layout_marginEnd="20dp"
             app:cardBackgroundColor="@color/surface"
             app:cardCornerRadius="26dp"
-            app:cardElevation="8dp"
+            app:cardElevation="6dp"
             app:strokeColor="@color/border"
             app:strokeWidth="1dp">
 
@@ -98,17 +114,35 @@
                 android:orientation="vertical"
                 android:padding="22dp">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thông tin đăng ký"
+                    android:textColor="@color/ink"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Hoàn tất trong vài giây để nhận ưu đãi thành viên"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilRegUser"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
-                    android:hint="Địa chỉ Email"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp"
+                    android:hint="Địa chỉ Email hoặc tên tài khoản"
+                    app:boxBackgroundColor="#F8FAFC"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="@color/primary"
                     app:endIconMode="clear_text"
                     app:hintTextColor="@color/primary"
@@ -132,10 +166,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
                     android:hint="Mật khẩu (tối thiểu 6 ký tự)"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxBackgroundColor="#F8FAFC"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="@color/primary"
                     app:endIconMode="password_toggle"
                     app:endIconTint="@color/text_secondary"
@@ -161,10 +196,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="20dp"
                     android:hint="Xác nhận mật khẩu"
-                    app:boxCornerRadiusBottomEnd="14dp"
-                    app:boxCornerRadiusBottomStart="14dp"
-                    app:boxCornerRadiusTopEnd="14dp"
-                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxBackgroundColor="#F8FAFC"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="@color/primary"
                     app:endIconMode="password_toggle"
                     app:endIconTint="@color/text_secondary"
@@ -204,20 +240,21 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/tvBackToLogin"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="50dp"
                     android:layout_marginTop="12dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:text="Đã có tài khoản? Quay lại đăng nhập"
                     android:textAllCaps="false"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/primary_dark"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
-                    app:cornerRadius="14dp"
-                    app:strokeColor="@color/primary"
-                    app:strokeWidth="1.2dp" />
+                    app:backgroundTint="@color/primary_soft"
+                    app:cornerRadius="16dp"
+                    app:strokeColor="#BFDBFE"
+                    app:strokeWidth="1dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

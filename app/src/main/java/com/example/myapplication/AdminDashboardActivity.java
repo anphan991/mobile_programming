@@ -104,6 +104,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         refreshCurrentTab();
+        UiMotion.animateContentSwitch(rvAdminList);
     }
 
     @Override
@@ -124,6 +125,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
         tvAdminEmpty = findViewById(R.id.tvAdminEmpty);
         rvAdminList = findViewById(R.id.rvAdminList);
         rvAdminList.setLayoutManager(new LinearLayoutManager(this));
+
+        UiMotion.bindTouchScale(
+                findViewById(R.id.btnBack),
+                btnTabProducts,
+                btnTabOrders,
+                btnTabUsers,
+                btnAdminAdd
+        );
     }
 
     private void setupListeners() {
@@ -158,6 +167,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         }
 
         refreshCurrentTab();
+        UiMotion.animateContentSwitch(rvAdminList);
     }
 
     private void styleTabButton(MaterialButton button, boolean active) {

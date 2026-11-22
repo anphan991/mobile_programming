@@ -8,9 +8,9 @@
     android:background="@color/screen_background"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:paddingStart="20dp"
+    android:paddingStart="18dp"
     android:paddingTop="12dp"
-    android:paddingEnd="20dp"
+    android:paddingEnd="18dp"
     android:paddingBottom="14dp"
     tools:ignore="HardcodedText,TextContrastCheck,TouchTargetSizeCheck">
 
@@ -37,13 +37,13 @@
             android:minHeight="48dp"
             android:padding="0dp"
             app:backgroundTint="@color/surface"
-            app:cornerRadius="12dp"
+            app:cornerRadius="15dp"
             app:icon="@drawable/ic_arrow_left_24"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="20dp"
             app:iconTint="@color/ink"
-            app:strokeColor="@color/border_strong"
+            app:strokeColor="@color/border"
             app:strokeWidth="1dp" />
 
         <LinearLayout
@@ -66,20 +66,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
-                android:text="Thông tin tài khoản"
+                android:text="Thông tin tài khoản và phân quyền"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardProfileContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="10dp"
         android:layout_weight="1"
         app:cardBackgroundColor="@color/surface"
-        app:cardCornerRadius="20dp"
+        app:cardCornerRadius="24dp"
         app:cardElevation="2dp"
         app:strokeColor="@color/border"
         app:strokeWidth="1dp">
@@ -99,8 +101,8 @@
                 android:padding="20dp">
 
                 <FrameLayout
-                    android:layout_width="84dp"
-                    android:layout_height="84dp"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_avatar_circle">
 
@@ -137,13 +139,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_badge_primary"
-                        android:paddingStart="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="3dp"
+                        android:paddingStart="11dp"
+                        android:paddingTop="3.5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="3.5dp"
                         android:text="Quản trị viên"
                         android:textColor="@color/primary_dark"
-                        android:textSize="11sp"
+                        android:textSize="11.5sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -152,13 +154,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_badge_success"
-                        android:paddingStart="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="3dp"
+                        android:paddingStart="11dp"
+                        android:paddingTop="3.5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="3.5dp"
                         android:text="Đang hoạt động"
                         android:textColor="@color/success"
-                        android:textSize="11sp"
+                        android:textSize="11.5sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -174,8 +176,8 @@
                     android:layout_height="wrap_content"
                     android:letterSpacing="0.06"
                     android:text="THÔNG TIN HỆ THỐNG"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="10.5sp"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
@@ -191,13 +193,13 @@
                         android:layout_weight="1"
                         android:background="@drawable/bg_spec_box"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="13dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.05"
-                            android:text="EMAIL"
+                            android:text="TÀI KHOẢN / EMAIL"
                             android:textColor="@color/text_tertiary"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -209,7 +211,7 @@
                             android:layout_marginTop="4dp"
                             android:text="admin"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="13.5sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -220,13 +222,13 @@
                         android:layout_weight="1"
                         android:background="@drawable/bg_spec_box"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="13dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.05"
-                            android:text="MÃ TÀI KHOẢN"
+                            android:text="MÃ ĐỊNH DANH"
                             android:textColor="@color/text_tertiary"
                             android:textSize="10sp"
                             android:textStyle="bold" />
@@ -238,56 +240,64 @@
                             android:layout_marginTop="4dp"
                             android:text="USR-001"
                             android:textColor="@color/ink"
-                            android:textSize="13sp"
+                            android:textSize="13.5sp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <com.google.android.material.divider.MaterialDivider
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="16dp"
-                    app:dividerColor="@color/border" />
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_spec_box"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Quyền truy cập:"
-                    android:textColor="@color/ink"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.05"
+                        android:text="QUYỀN TRUY CẬP HỆ THỐNG"
+                        android:textColor="@color/ink"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvProfilePermissions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:lineSpacingExtra="4dp"
-                    android:text="• Tra cứu toàn bộ danh mục sản phẩm công nghệ\n• Xem chi tiết thông số kỹ thuật và bảo hành"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/tvProfilePermissions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="5dp"
+                        android:text="• Tra cứu toàn bộ danh mục sản phẩm công nghệ\n• Xem chi tiết thông số kỹ thuật và bảo hành"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnProfileAdmin"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="50dp"
                     android:layout_marginTop="16dp"
                     android:minHeight="48dp"
                     android:text="Mở Bảng điều khiển Admin"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    android:textSize="13.5sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:visibility="gone"
                     app:backgroundTint="@color/primary"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="15dp"
+                    app:icon="@drawable/ic_store_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/white" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogoutProfile"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="16dp"
                     android:insetLeft="0dp"
                     android:insetTop="0dp"
                     android:insetRight="0dp"
@@ -299,9 +309,14 @@
                     android:textColor="@color/danger"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
-                    app:backgroundTint="@color/surface_subtle"
-                    app:cornerRadius="12dp"
-                    app:strokeColor="@color/danger"
+                    app:backgroundTint="@color/danger_soft"
+                    app:cornerRadius="15dp"
+                    app:icon="@drawable/ic_logout_24"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/danger"
+                    app:strokeColor="#FDA4AF"
                     app:strokeWidth="1dp" />
 
             </LinearLayout>
@@ -311,7 +326,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnBackToListBottom"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="52dp"
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
@@ -321,10 +336,10 @@
         android:text="Quay lại danh sách sản phẩm"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:textSize="13.5sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         app:backgroundTint="@color/primary"
-        app:cornerRadius="24dp"
+        app:cornerRadius="26dp"
         app:icon="@drawable/ic_arrow_left_24"
         app:iconGravity="textStart"
         app:iconPadding="8dp"

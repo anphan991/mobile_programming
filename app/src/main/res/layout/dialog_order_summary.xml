@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
     app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="26dp"
     app:cardElevation="6dp"
     app:strokeColor="@color/border"
     app:strokeWidth="1dp"
@@ -33,10 +33,10 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardDialogIcon"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
                     app:cardBackgroundColor="@color/primary_soft"
-                    app:cardCornerRadius="14dp"
+                    app:cardCornerRadius="15dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
 
@@ -63,7 +63,7 @@
                         android:layout_height="wrap_content"
                         android:text="Xác nhận đặt hàng"
                         android:textColor="@color/ink"
-                        android:textSize="18sp"
+                        android:textSize="18.5sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -83,10 +83,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_badge_primary"
-                android:paddingStart="10dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="4dp"
+                android:paddingStart="11dp"
+                android:paddingTop="4.5dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="4.5dp"
                 android:text="Mã đơn: #ORD-000000"
                 android:textColor="@color/primary_dark"
                 android:textSize="12sp"
@@ -98,8 +98,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                app:cardBackgroundColor="@color/screen_background"
-                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/border"
                 app:strokeWidth="1dp">
@@ -115,7 +115,7 @@
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.05"
                         android:text="THÔNG TIN NHẬN HÀNG"
-                        android:textColor="@color/text_tertiary"
+                        android:textColor="@color/primary_dark"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
 
@@ -165,8 +165,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/screen_background"
-                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/border"
                 app:strokeWidth="1dp">
@@ -183,7 +183,7 @@
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.05"
                         android:text="SẢN PHẨM ĐẶT MUA"
-                        android:textColor="@color/text_tertiary"
+                        android:textColor="@color/primary_dark"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
 
@@ -225,7 +225,7 @@
                             android:layout_height="wrap_content"
                             android:text="34.990.000đ"
                             android:textColor="@color/primary_dark"
-                            android:textSize="17sp"
+                            android:textSize="17.5sp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
@@ -252,7 +252,7 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/surface"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="14dp"
                     app:strokeColor="@color/border_strong"
                     app:strokeWidth="1dp" />
 
@@ -268,7 +268,7 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     app:backgroundTint="@color/primary"
-                    app:cornerRadius="12dp" />
+                    app:cornerRadius="14dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

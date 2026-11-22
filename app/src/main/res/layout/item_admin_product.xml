@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
     app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/border"
     app:strokeWidth="1dp"
     tools:ignore="HardcodedText,TouchTargetSizeCheck">
@@ -24,14 +24,15 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgAdminProd"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:background="@drawable/bg_product_thumb"
                 android:contentDescription="Ảnh sản phẩm"
                 android:padding="6dp"
-                android:scaleType="centerInside" />
+                android:scaleType="centerInside"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.RoundedImage" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -82,9 +83,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_badge_success"
-                        android:paddingStart="8dp"
+                        android:paddingStart="9dp"
                         android:paddingTop="3dp"
-                        android:paddingEnd="8dp"
+                        android:paddingEnd="9dp"
                         android:paddingBottom="3dp"
                         android:text="Còn hàng"
                         android:textColor="@color/success"
@@ -114,7 +115,7 @@
                 android:textSize="12.5sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/primary_soft"
-                app:cornerRadius="12dp" />
+                app:cornerRadius="14dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteProduct"
@@ -130,7 +131,7 @@
                 android:textSize="12.5sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/surface"
-                app:cornerRadius="12dp"
+                app:cornerRadius="14dp"
                 app:strokeColor="@color/danger"
                 app:strokeWidth="1dp" />
         </LinearLayout>

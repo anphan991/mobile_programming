@@ -23,15 +23,16 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgProdPreview"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="74dp"
+                android:layout_height="74dp"
                 android:background="@drawable/bg_product_thumb"
                 android:contentDescription="Xem trước ảnh sản phẩm"
                 android:padding="6dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_store_24" />
+                android:src="@drawable/ic_store_24"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.RoundedImage" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -59,8 +60,9 @@
                     android:textAllCaps="false"
                     android:textColor="@color/ink"
                     android:textSize="12.5sp"
+                    android:textStyle="bold"
                     app:backgroundTint="@color/surface"
-                    app:cornerRadius="10dp"
+                    app:cornerRadius="12dp"
                     app:strokeColor="@color/border_strong"
                     app:strokeWidth="1dp" />
             </LinearLayout>
@@ -86,7 +88,7 @@
                 android:textSize="12.5sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/primary_soft"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="12dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickUrlImage"
@@ -101,14 +103,19 @@
                 android:textSize="12.5sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/primary_soft"
-                app:cornerRadius="10dp" />
+                app:cornerRadius="12dp" />
         </LinearLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Tên sản phẩm *">
+            android:hint="Tên sản phẩm *"
+            app:boxBackgroundColor="#F8FAFC"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtProdName"
@@ -129,7 +136,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:hint="Mã SKU *">
+                android:hint="Mã SKU *"
+                app:boxBackgroundColor="#F8FAFC"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtProdSku"
@@ -144,7 +156,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1.2"
-                android:hint="Giá bán (VD: 19990000) *">
+                android:hint="Giá bán (VD: 19990000) *"
+                app:boxBackgroundColor="#F8FAFC"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtProdPrice"
@@ -159,7 +176,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Danh mục sản phẩm">
+            android:hint="Danh mục sản phẩm"
+            app:boxBackgroundColor="#F8FAFC"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <AutoCompleteTextView
                 android:id="@+id/actvProdCategory"
@@ -173,7 +195,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Chế độ bảo hành">
+            android:hint="Chế độ bảo hành"
+            app:boxBackgroundColor="#F8FAFC"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtProdWarranty"
@@ -187,7 +214,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Mô tả ngắn *">
+            android:hint="Mô tả ngắn *"
+            app:boxBackgroundColor="#F8FAFC"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtProdDesc"
@@ -202,7 +234,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:hint="Thông số chi tiết">
+            android:hint="Thông số chi tiết"
+            app:boxBackgroundColor="#F8FAFC"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edtProdSpecs"
@@ -220,7 +257,8 @@
             android:checked="true"
             android:text="Trạng thái: Còn hàng"
             android:textColor="@color/ink"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 </ScrollView>

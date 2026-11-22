@@ -5,9 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="14dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="1dp"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/border"
     app:strokeWidth="1dp"
     tools:ignore="HardcodedText">
@@ -37,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:text="#TS123456"
                     android:textColor="@color/ink"
-                    android:textSize="16sp"
+                    android:textSize="16.5sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -55,10 +58,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_badge_primary"
-                android:paddingStart="10dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="5dp"
+                android:paddingStart="11dp"
+                android:paddingTop="4.5dp"
+                android:paddingEnd="11dp"
+                android:paddingBottom="4.5dp"
                 android:text="Đang xử lý"
                 android:textColor="@color/primary_dark"
                 android:textSize="12sp"
@@ -72,7 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:cardBackgroundColor="@color/primary_soft"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="14dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
 
@@ -117,10 +120,10 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dotStep0"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:cardBackgroundColor="@color/primary"
-                app:cardCornerRadius="11dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -144,10 +147,10 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dotStep1"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:cardBackgroundColor="@color/border"
-                app:cardCornerRadius="11dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -171,10 +174,10 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dotStep2"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:cardBackgroundColor="@color/border"
-                app:cardCornerRadius="11dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -198,10 +201,10 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dotStep3"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:cardBackgroundColor="@color/border"
-                app:cardCornerRadius="11dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -225,10 +228,10 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/dotStep4"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 app:cardBackgroundColor="@color/border"
-                app:cardCornerRadius="11dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
 
@@ -318,7 +321,8 @@
             android:layout_height="wrap_content"
             android:text="Người nhận: Nguyễn Văn A - 0901234567"
             android:textColor="@color/ink"
-            android:textSize="13sp" />
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvAddressInfo"
@@ -345,7 +349,8 @@
                 android:layout_weight="1"
                 android:text="2 sản phẩm - COD"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvOrderTotal"
@@ -353,7 +358,7 @@
                 android:layout_height="wrap_content"
                 android:text="34.990.000đ"
                 android:textColor="@color/primary_dark"
-                android:textSize="15sp"
+                android:textSize="15.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -362,8 +367,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:background="@drawable/bg_spec_box"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="8dp">
 
             <TextView
                 android:layout_width="0dp"

@@ -2,19 +2,37 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="screen_background">#F4F5F9</color>
+
+    <!-- Bento & Soft UI Evolution Surfaces (WCAG AA/AAA Contrast) -->
+    <color name="screen_background">#F2F5FC</color>
     <color name="surface">#FFFFFFFF</color>
-    <color name="surface_subtle">#F1F5F9</color>
+    <color name="surface_subtle">#EEF2FA</color>
+    <color name="surface_elevated">#F8FAFC</color>
+
+    <!-- High-Contrast Typography Tokens (SKILL.md: Slate-900 & Slate-600 minimum) -->
     <color name="ink">#0F172A</color>
-    <color name="text_secondary">#64748B</color>
-    <color name="text_tertiary">#94A3B8</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_tertiary">#64748B</color>
+
+    <!-- Refined Borders -->
     <color name="border">#E2E8F0</color>
     <color name="border_strong">#CBD5E1</color>
+
+    <!-- Electric Tech Blue & Vibrant Youthful Accents -->
     <color name="primary">#2563EB</color>
     <color name="primary_dark">#1D4ED8</color>
     <color name="primary_soft">#EFF6FF</color>
+    <color name="accent_indigo">#4F46E5</color>
+    <color name="accent_indigo_soft">#EEF2FF</color>
     <color name="accent_cyan">#06B6D4</color>
-    <color name="midnight">#0F172A</color>
-    <color name="danger">#DC2626</color>
-    <color name="success">#16A34A</color>
+    <color name="accent_cyan_soft">#ECFEFF</color>
+    <color name="accent_amber">#F59E0B</color>
+    <color name="accent_amber_soft">#FEF3C7</color>
+    <color name="midnight">#0B1120</color>
+
+    <!-- Semantic Status Colors -->
+    <color name="danger">#E11D48</color>
+    <color name="danger_soft">#FFE4E6</color>
+    <color name="success">#059669</color>
+    <color name="success_soft">#D1FAE5</color>
 </resources>

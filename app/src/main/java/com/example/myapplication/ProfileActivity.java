@@ -62,6 +62,9 @@ public class ProfileActivity extends AppCompatActivity {
         MaterialButton btnProfileAdmin = findViewById(R.id.btnProfileAdmin);
         Button btnLogoutProfile = findViewById(R.id.btnLogoutProfile);
 
+        UiMotion.bindTouchScale(btnBack, btnBackToListBottom, btnProfileAdmin, btnLogoutProfile);
+        UiMotion.animateEntry(findViewById(R.id.cardProfileContent), btnBackToListBottom);
+
         // Gán dữ liệu hồ sơ
         // lấy ký tự đầu tiên tại vị trí chỉ số 0 của chuỗi tên tài khoản (substring(0, 1)) và chuyển thành chữ in hoa (toUpperCase()).
         String initial = username.substring(0, 1).toUpperCase();

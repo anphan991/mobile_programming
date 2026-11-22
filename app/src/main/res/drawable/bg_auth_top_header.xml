@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Nền gradient Deep Navy -> Royal Blue (xanh dương hài hòa) -->
+    <!-- Nền gradient Midnight Obsidian -> Electric Indigo -> Royal Blue -->
     <item>
         <shape android:shape="rectangle">
             <gradient
                 android:angle="135"
-                android:centerColor="#1E3A8A"
+                android:centerColor="#1E1B4B"
                 android:endColor="#2563EB"
-                android:startColor="#0A192F"
+                android:startColor="#090D16"
                 android:type="linear" />
             <corners
-                android:bottomLeftRadius="42dp"
-                android:bottomRightRadius="42dp" />
+                android:bottomLeftRadius="44dp"
+                android:bottomRightRadius="44dp" />
         </shape>
     </item>
 
-    <!-- Ánh sáng Cyan góc trên phải -->
+    <!-- Ánh sáng Neon Cyan góc trên phải -->
     <item
-        android:width="240dp"
-        android:height="240dp"
+        android:width="250dp"
+        android:height="250dp"
         android:gravity="top|end"
-        android:right="-70dp"
-        android:top="-70dp">
+        android:right="-75dp"
+        android:top="-75dp">
         <shape android:shape="oval">
-            <solid android:color="#2406B6D4" />
+            <solid android:color="#2E06B6D4" />
         </shape>
     </item>
 
-    <!-- Ánh sáng Sky Blue góc trái dưới -->
+    <!-- Ánh sáng Electric Indigo góc trái dưới -->
     <item
-        android:width="170dp"
-        android:height="170dp"
+        android:width="180dp"
+        android:height="180dp"
+        android:bottom="14dp"
         android:gravity="bottom|start"
-        android:left="-50dp"
-        android:bottom="16dp">
+        android:left="-55dp">
         <shape android:shape="oval">
-            <solid android:color="#263B82F6" />
+            <solid android:color="#336366F1" />
         </shape>
     </item>
 </layer-list>
