@@ -7,22 +7,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
-
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Hộp thoại hủy đơn hàng dùng chung cho User và Admin, hỗ trợ chọn hoặc nhập lý do hủy.
- */
 public final class OrderCancelHelper {
 
     public interface OnCancelledListener {
@@ -33,7 +26,6 @@ public final class OrderCancelHelper {
 
     public static void showCancelDialog(Context context, Order order, boolean isAdmin, OnCancelledListener listener) {
         if (order == null) return;
-
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_cancel_order, null);
         TextView tvTitle = view.findViewById(R.id.tvCancelDialogTitle);
         TextView tvSubtitle = view.findViewById(R.id.tvCancelDialogSubtitle);
@@ -42,11 +34,8 @@ public final class OrderCancelHelper {
         RadioButton rb2 = view.findViewById(R.id.rbReason2);
         RadioButton rb3 = view.findViewById(R.id.rbReason3);
         RadioButton rb4 = view.findViewById(R.id.rbReason4);
-        RadioButton rbOther = view.findViewById(R.id.rbReasonOther);
         TextInputLayout tilCustom = view.findViewById(R.id.tilCustomCancelReason);
         TextInputEditText edtCustom = view.findViewById(R.id.edtCustomCancelReason);
-        MaterialButton btnKeep = view.findViewById(R.id.btnCancelKeep);
-        MaterialButton btnConfirm = view.findViewById(R.id.btnCancelConfirm);
 
         tvTitle.setText("Hủy đơn #" + order.getOrderCode());
         if (isAdmin) {
@@ -63,66 +52,45 @@ public final class OrderCancelHelper {
             rb4.setText("Đổi ý / không còn nhu cầu");
         }
 
-        rgReasons.setOnCheckedChangeListener((group, checkedId) -> {
+        rgReasons.setOnCheckedChangeListener((g, id) -> {
             tilCustom.setError(null);
-            tilCustom.setHint(checkedId == R.id.rbReasonOther
-                    ? "Nhập lý do hủy đơn *"
-                    : "Ghi chú thêm (Tùy chọn)");
+            tilCustom.setHint(id == R.id.rbReasonOther ? "Nhập lý do hủy đơn *" : "Ghi chú thêm (Tùy chọn)");
         });
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(context)
-                .setView(view)
-                .setCancelable(true)
-                .create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
+        AlertDialog dialog = new MaterialAlertDialogBuilder(context).setView(view).setCancelable(true).create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        btnKeep.setOnClickListener(v -> dialog.dismiss());
-        btnConfirm.setOnClickListener(v -> {
+        view.findViewById(R.id.btnCancelKeep).setOnClickListener(v -> dialog.dismiss());
+        view.findViewById(R.id.btnCancelConfirm).setOnClickListener(v -> {
             int checkedId = rgReasons.getCheckedRadioButtonId();
-            String customText = edtCustom.getText() != null ? edtCustom.getText().toString().trim() : "";
+            String custom = edtCustom.getText() != null ? edtCustom.getText().toString().trim() : "";
             String finalReason;
-
             if (checkedId == R.id.rbReasonOther) {
-                if (customText.isEmpty()) {
+                if (custom.isEmpty()) {
                     tilCustom.setError("Vui lòng nhập lý do hủy đơn!");
                     return;
                 }
-                finalReason = customText;
+                finalReason = custom;
             } else {
-                RadioButton selected = view.findViewById(checkedId);
-                String preset = selected != null ? selected.getText().toString() : "";
-                finalReason = customText.isEmpty() ? preset : (preset + " - " + customText);
+                RadioButton sel = view.findViewById(checkedId);
+                String preset = sel != null ? sel.getText().toString() : "";
+                finalReason = custom.isEmpty() ? preset : (preset + " - " + custom);
             }
+            if (isAdmin && !finalReason.startsWith("Admin:")) finalReason = "Admin: " + finalReason;
 
-            if (isAdmin && !finalReason.startsWith("Admin:")) {
-                finalReason = "Admin: " + finalReason;
-            }
-
-            new DatabaseHelper(context).updateOrderStatusWithReason(
-                    order.getOrderCode(), Order.STEP_CANCELLED, finalReason);
+            new DatabaseHelper(context).updateOrderStatusWithReason(order.getOrderCode(), Order.STEP_CANCELLED, finalReason);
 
             Map<String, Object> updates = new HashMap<>();
             updates.put("statusStep", Order.STEP_CANCELLED);
             updates.put("status", Order.getStepTitle(Order.STEP_CANCELLED));
             updates.put("cancelReason", finalReason);
             updates.put("cancelledBy", isAdmin ? "admin" : "user");
-            FirebaseFirestore.getInstance()
-                    .collection("orders")
-                    .document(order.getOrderCode())
-                    .set(updates, SetOptions.merge());
+            FirebaseFirestore.getInstance().collection("orders").document(order.getOrderCode()).set(updates, SetOptions.merge());
 
-            Toast.makeText(context,
-                    "Đã hủy đơn #" + order.getOrderCode(),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Đã hủy đơn #" + order.getOrderCode(), Toast.LENGTH_SHORT).show();
             dialog.dismiss();
-
-            if (listener != null) {
-                listener.onOrderCancelled(finalReason);
-            }
+            if (listener != null) listener.onOrderCancelled(finalReason);
         });
-
         dialog.show();
     }
 }

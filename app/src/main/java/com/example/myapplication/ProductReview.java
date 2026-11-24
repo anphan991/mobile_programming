@@ -1,10 +1,6 @@
 package com.example.myapplication;
 
-/**
- * Mô hình đánh giá & bình luận sản phẩm của khách hàng (1-5 sao, nhận xét, nhãn đã mua hàng và lượt hữu ích).
- */
 public class ProductReview {
-
     private final int id;
     private final String sku;
     private final String username;
@@ -26,39 +22,13 @@ public class ProductReview {
         this.helpfulCount = Math.max(0, helpfulCount);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public boolean isVerifiedPurchase() {
-        return verifiedPurchase;
-    }
-
-    public int getHelpfulCount() {
-        return helpfulCount;
-    }
-
-    public void setHelpfulCount(int helpfulCount) {
-        this.helpfulCount = Math.max(0, helpfulCount);
-    }
+    public int getId() { return id; }
+    public String getSku() { return sku; }
+    public String getUsername() { return username; }
+    public int getRating() { return rating; }
+    public String getComment() { return comment; }
+    public String getCreatedAt() { return createdAt; }
+    public boolean isVerifiedPurchase() { return verifiedPurchase; }
+    public int getHelpfulCount() { return helpfulCount; }
+    public void setHelpfulCount(int count) { this.helpfulCount = Math.max(0, count); }
 }

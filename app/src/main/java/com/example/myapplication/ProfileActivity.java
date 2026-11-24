@@ -1,18 +1,13 @@
 package com.example.myapplication;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
-import com.google.firebase.auth.FirebaseAuth;
+import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -20,36 +15,10 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        UiMotion.applyInsets(findViewById(R.id.rootProfile));
 
-        // Xử lý WindowInsets để tránh status bar đè lên tiêu đề
-        View rootView = findViewById(R.id.rootProfile);
-        if (rootView != null) {
-            final int baseLeft = rootView.getPaddingLeft();
-            final int baseTop = rootView.getPaddingTop();
-            final int baseRight = rootView.getPaddingRight();
-            final int baseBottom = rootView.getPaddingBottom();
-            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-                Insets systemBars = insets.getInsets(
-                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
-                );
-                v.setPadding(
-                        baseLeft + systemBars.left,
-                        baseTop + systemBars.top,
-                        baseRight + systemBars.right,
-                        baseBottom + systemBars.bottom
-                );
-                return insets;
-            });
-        }
+        String username = UiMotion.currentUser(this);
 
-        // Đọc tên người dùng đang đăng nhập từ SharedPreferences
-        SharedPreferences sessionPref = getSharedPreferences("UserSession", MODE_PRIVATE);
-        String username = sessionPref.getString("CURRENT_USER", "admin");
-        if (username == null || username.trim().isEmpty()) {
-            username = "admin";
-        }
-
-        // Ánh xạ view
         TextView tvProfileAvatar = findViewById(R.id.tvProfileAvatar);
         TextView tvProfileUsername = findViewById(R.id.tvProfileUsername);
         TextView tvProfileRoleBadge = findViewById(R.id.tvProfileRoleBadge);
@@ -65,16 +34,11 @@ public class ProfileActivity extends AppCompatActivity {
         UiMotion.bindTouchScale(btnBack, btnBackToListBottom, btnProfileAdmin, btnLogoutProfile);
         UiMotion.animateEntry(findViewById(R.id.cardProfileContent), btnBackToListBottom);
 
-        // Gán dữ liệu hồ sơ
-        // lấy ký tự đầu tiên tại vị trí chỉ số 0 của chuỗi tên tài khoản (substring(0, 1)) và chuyển thành chữ in hoa (toUpperCase()).
-        String initial = username.substring(0, 1).toUpperCase();
-        //Gán chữ cái in hoa này vào tâm của một khung hình
-        tvProfileAvatar.setText(initial);
+        tvProfileAvatar.setText(username.substring(0, 1).toUpperCase(Locale.ROOT));
         tvProfileUsername.setText(username);
         tvProfileUserValue.setText(username);
 
-        boolean isAdmin = new DatabaseHelper(this).isAdminUser(username);
-        if (isAdmin) {
+        if (new DatabaseHelper(this).isAdminUser(username)) {
             tvProfileRoleBadge.setText("Quản trị viên");
             tvProfileIdValue.setText("USR-ADMIN");
             if (tvProfilePermissions != null) {
@@ -82,42 +46,16 @@ public class ProfileActivity extends AppCompatActivity {
             }
             if (btnProfileAdmin != null) {
                 btnProfileAdmin.setVisibility(View.VISIBLE);
-                btnProfileAdmin.setOnClickListener(v -> startActivity(
-                        new Intent(ProfileActivity.this, AdminDashboardActivity.class)));
+                btnProfileAdmin.setOnClickListener(v -> startActivity(new Intent(this, AdminDashboardActivity.class)));
             }
         } else {
             tvProfileRoleBadge.setText("Thành viên chính thức");
-            int uniqueId = Math.abs(username.hashCode()) % 900 + 100;
-            tvProfileIdValue.setText("USR-" + uniqueId);
-            if (btnProfileAdmin != null) {
-                btnProfileAdmin.setVisibility(View.GONE);
-            }
+            tvProfileIdValue.setText("USR-" + (Math.abs(username.hashCode()) % 900 + 100));
+            if (btnProfileAdmin != null) btnProfileAdmin.setVisibility(View.GONE);
         }
 
-        // Sự kiện quay lại danh sách sản phẩm
         btnBack.setOnClickListener(v -> finish());
         btnBackToListBottom.setOnClickListener(v -> finish());
-
-        // Sự kiện đăng xuất tài khoản từ trang hồ sơ
-        btnLogoutProfile.setOnClickListener(v -> performLogout());
-    }
-
-    private void performLogout() {
-        // Đăng xuất Firebase Auth
-        FirebaseAuth.getInstance().signOut();
-
-        // Xóa bộ nhớ tạm giỏ hàng của phiên hiện tại
-        CartManager.onLogout();
-
-        // Xóa phiên trong SharedPreferences
-        SharedPreferences sessionPref = getSharedPreferences("UserSession", MODE_PRIVATE);
-        sessionPref.edit().clear().apply();
-
-        Toast.makeText(this, "Đã đăng xuất tài khoản thành công!", Toast.LENGTH_SHORT).show();
-
-        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        btnLogoutProfile.setOnClickListener(v -> UiMotion.logout(this));
     }
 }

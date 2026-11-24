@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 import java.util.Locale;
 
-// Kết nối danh sách Product với giao diện thẻ Bento Grid Flagship (item_product.xml)
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
     public interface OnProductActionListener {
@@ -36,85 +34,58 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Product product = productList.get(position);
-        Context ctx = holder.itemView.getContext();
+    public void onBindViewHolder(@NonNull ViewHolder h, int position) {
+        Product p = productList.get(position);
+        Context ctx = h.itemView.getContext();
         DatabaseHelper db = new DatabaseHelper(ctx);
-        SharedPreferences pref = ctx.getSharedPreferences("UserSession", Context.MODE_PRIVATE);
-        String currentUser = pref.getString("CURRENT_USER", "admin");
+        String user = UiMotion.currentUser(ctx);
 
-        ProductImageHelper.bindImage(holder.imgProduct, product);
-        holder.tvCategory.setText(product.getCategory());
-        holder.tvName.setText(product.getName());
-        holder.tvDesc.setText(product.getDescription());
-        holder.tvPrice.setText(product.getPrice());
+        ProductImageHelper.bindImage(h.imgProduct, p);
+        h.tvCategory.setText(p.getCategory());
+        h.tvName.setText(p.getName());
+        h.tvDesc.setText(p.getDescription());
+        h.tvPrice.setText(p.getPrice());
 
-        // % giảm giá & Giá gốc gạch ngang
-        int discount = DatabaseHelper.getDiscountPercent(product);
-        if (holder.tvDiscount != null) {
-            holder.tvDiscount.setText("-" + discount + "%");
+        if (h.tvDiscount != null) h.tvDiscount.setText("-" + DatabaseHelper.getDiscountPercent(p) + "%");
+        if (h.tvOldPrice != null) {
+            h.tvOldPrice.setText(DatabaseHelper.getOriginalPriceFormatted(p));
+            h.tvOldPrice.setPaintFlags(h.tvOldPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
-        if (holder.tvOldPrice != null) {
-            holder.tvOldPrice.setText(DatabaseHelper.getOriginalPriceFormatted(product));
-            holder.tvOldPrice.setPaintFlags(holder.tvOldPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        if (h.tvRating != null) {
+            h.tvRating.setText(String.format(Locale.US, "%.1f (%d)",
+                    db.getAverageRating(p.getSku()), Math.max(1, db.getReviewCount(p.getSku()))));
         }
+        if (h.tvSold != null) h.tvSold.setText(DatabaseHelper.getSoldCountText(p));
 
-        // Điểm sao đánh giá thực tế từ SQLite + số lượt bán
-        if (holder.tvRating != null) {
-            float avg = db.getAverageRating(product.getSku());
-            int count = db.getReviewCount(product.getSku());
-            holder.tvRating.setText(String.format(Locale.US, "%.1f (%d)", avg, Math.max(1, count)));
+        if (h.imgWishlist != null) {
+            h.imgWishlist.setImageResource(db.isWishlisted(user, p.getSku())
+                    ? R.drawable.ic_heart_filled_24 : R.drawable.ic_heart_outline_24);
         }
-        if (holder.tvSold != null) {
-            holder.tvSold.setText(DatabaseHelper.getSoldCountText(product));
-        }
-
-        // Trạng thái Yêu thích (Wishlist)
-        boolean wishlisted = db.isWishlisted(currentUser, product.getSku());
-        if (holder.imgWishlist != null) {
-            holder.imgWishlist.setImageResource(wishlisted
-                    ? R.drawable.ic_heart_filled_24
-                    : R.drawable.ic_heart_outline_24);
-        }
-        if (holder.btnWishlist != null) {
-            holder.btnWishlist.setOnClickListener(v -> {
-                boolean nowWishlisted = db.toggleWishlist(currentUser, product.getSku());
-                if (holder.imgWishlist != null) {
-                    holder.imgWishlist.setImageResource(nowWishlisted
-                            ? R.drawable.ic_heart_filled_24
-                            : R.drawable.ic_heart_outline_24);
+        if (h.btnWishlist != null) {
+            h.btnWishlist.setOnClickListener(v -> {
+                boolean saved = db.toggleWishlist(user, p.getSku());
+                if (h.imgWishlist != null) {
+                    h.imgWishlist.setImageResource(saved ? R.drawable.ic_heart_filled_24 : R.drawable.ic_heart_outline_24);
                 }
-                UiMotion.animateBadgePop(holder.btnWishlist);
-                Toast.makeText(ctx,
-                        nowWishlisted
-                                ? "Đã lưu " + product.getName() + " vào Yêu thích"
-                                : "Đã bỏ khỏi danh sách Yêu thích",
-                        Toast.LENGTH_SHORT).show();
+                UiMotion.animateBadgePop(h.btnWishlist);
+                Toast.makeText(ctx, saved ? "Đã lưu " + p.getName() + " vào Yêu thích" : "Đã bỏ khỏi Yêu thích", Toast.LENGTH_SHORT).show();
                 listener.onWishlistChanged();
             });
         }
 
-        boolean inStock = product.isInStock();
-        holder.tvOutOfStock.setVisibility(inStock ? View.GONE : View.VISIBLE);
+        boolean inStock = p.isInStock();
+        h.tvOutOfStock.setVisibility(inStock ? View.GONE : View.VISIBLE);
+        h.btnQuickAdd.setEnabled(inStock);
+        h.btnQuickAdd.setAlpha(inStock ? 1f : 0.35f);
+        h.cardQuickAddBg.setCardBackgroundColor(ContextCompat.getColor(ctx, inStock ? R.color.primary : R.color.text_tertiary));
 
-        // Nút + thêm nhanh vào giỏ (làm mờ và vô hiệu hóa nếu hết hàng)
-        holder.btnQuickAdd.setEnabled(inStock);
-        holder.btnQuickAdd.setAlpha(inStock ? 1.0f : 0.35f);
-        holder.cardQuickAddBg.setCardBackgroundColor(ContextCompat.getColor(
-                ctx,
-                inStock ? R.color.primary : R.color.text_tertiary
-        ));
-
-        holder.itemView.setOnClickListener(v -> listener.onProductClick(product));
-        holder.btnQuickAdd.setOnClickListener(v -> {
-            if (inStock) listener.onQuickAddCart(product);
-        });
-        UiMotion.bindTouchScale(holder.itemView, holder.btnQuickAdd, holder.btnWishlist);
+        h.itemView.setOnClickListener(v -> listener.onProductClick(p));
+        h.btnQuickAdd.setOnClickListener(v -> { if (inStock) listener.onQuickAddCart(p); });
+        UiMotion.bindTouchScale(h.itemView, h.btnQuickAdd, h.btnWishlist);
     }
 
     @Override
@@ -128,22 +99,22 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         final View btnQuickAdd, btnWishlist;
         final MaterialCardView cardQuickAddBg;
 
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imgProduct = itemView.findViewById(R.id.imgProduct);
-            tvCategory = itemView.findViewById(R.id.tvProductCategory);
-            tvName = itemView.findViewById(R.id.tvProductName);
-            tvDesc = itemView.findViewById(R.id.tvProductDesc);
-            tvPrice = itemView.findViewById(R.id.tvProductPrice);
-            tvOldPrice = itemView.findViewById(R.id.tvProductOldPrice);
-            tvDiscount = itemView.findViewById(R.id.tvProductDiscount);
-            tvRating = itemView.findViewById(R.id.tvProductRating);
-            tvSold = itemView.findViewById(R.id.tvProductSold);
-            tvOutOfStock = itemView.findViewById(R.id.tvItemOutOfStockBadge);
-            btnQuickAdd = itemView.findViewById(R.id.btnQuickAddCart);
-            btnWishlist = itemView.findViewById(R.id.btnItemWishlist);
-            imgWishlist = itemView.findViewById(R.id.imgItemWishlist);
-            cardQuickAddBg = itemView.findViewById(R.id.cardQuickAddBg);
+        ViewHolder(@NonNull View v) {
+            super(v);
+            imgProduct = v.findViewById(R.id.imgProduct);
+            tvCategory = v.findViewById(R.id.tvProductCategory);
+            tvName = v.findViewById(R.id.tvProductName);
+            tvDesc = v.findViewById(R.id.tvProductDesc);
+            tvPrice = v.findViewById(R.id.tvProductPrice);
+            tvOldPrice = v.findViewById(R.id.tvProductOldPrice);
+            tvDiscount = v.findViewById(R.id.tvProductDiscount);
+            tvRating = v.findViewById(R.id.tvProductRating);
+            tvSold = v.findViewById(R.id.tvProductSold);
+            tvOutOfStock = v.findViewById(R.id.tvItemOutOfStockBadge);
+            btnQuickAdd = v.findViewById(R.id.btnQuickAddCart);
+            btnWishlist = v.findViewById(R.id.btnItemWishlist);
+            imgWishlist = v.findViewById(R.id.imgItemWishlist);
+            cardQuickAddBg = v.findViewById(R.id.cardQuickAddBg);
         }
     }
 }

@@ -1,8 +1,5 @@
 package com.example.myapplication;
 
-/**
- * Mô hình tài khoản người dùng phục vụ phân quyền và quản lý trong bảng users.
- */
 public class UserAccount {
     public static final String ROLE_ADMIN = "admin";
     public static final String ROLE_USER = "user";
@@ -20,10 +17,7 @@ public class UserAccount {
     }
 
     public static String normalizeRole(String role, String username) {
-        if (ROLE_ADMIN.equalsIgnoreCase(role) || "admin".equalsIgnoreCase(username)) {
-            return ROLE_ADMIN;
-        }
-        return ROLE_USER;
+        return (ROLE_ADMIN.equalsIgnoreCase(role) || "admin".equalsIgnoreCase(username)) ? ROLE_ADMIN : ROLE_USER;
     }
 
     public int getId() { return id; }

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import java.util.Locale;
 
-// Adapter cho thanh cuộn ngang sản phẩm Flagship nổi bật
 public class SpotlightAdapter extends RecyclerView.Adapter<SpotlightAdapter.ViewHolder> {
 
     public interface OnSpotlightClickListener {
@@ -28,25 +27,22 @@ public class SpotlightAdapter extends RecyclerView.Adapter<SpotlightAdapter.View
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spotlight, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_spotlight, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Product product = featuredList.get(position);
-        holder.tvCategory.setText(product.getCategory());
-        holder.tvName.setText(product.getName());
-        holder.tvDesc.setText(product.getDescription());
-        holder.tvPrice.setText(product.getPrice());
-        if (holder.tvRating != null) {
-            float avg = new DatabaseHelper(holder.itemView.getContext()).getAverageRating(product.getSku());
-            holder.tvRating.setText(String.format(Locale.US, "%.1f", avg));
+    public void onBindViewHolder(@NonNull ViewHolder h, int position) {
+        Product p = featuredList.get(position);
+        h.tvCategory.setText(p.getCategory());
+        h.tvName.setText(p.getName());
+        h.tvDesc.setText(p.getDescription());
+        h.tvPrice.setText(p.getPrice());
+        if (h.tvRating != null) {
+            h.tvRating.setText(String.format(Locale.US, "%.1f", new DatabaseHelper(h.itemView.getContext()).getAverageRating(p.getSku())));
         }
-        ProductImageHelper.bindImage(holder.imgProduct, product);
-
-        holder.itemView.setOnClickListener(v -> listener.onSpotlightClick(product));
-        UiMotion.bindTouchScale(holder.itemView);
+        ProductImageHelper.bindImage(h.imgProduct, p);
+        h.itemView.setOnClickListener(v -> listener.onSpotlightClick(p));
+        UiMotion.bindTouchScale(h.itemView);
     }
 
     @Override
@@ -58,14 +54,14 @@ public class SpotlightAdapter extends RecyclerView.Adapter<SpotlightAdapter.View
         final ImageView imgProduct;
         final TextView tvCategory, tvName, tvDesc, tvPrice, tvRating;
 
-        ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            imgProduct = itemView.findViewById(R.id.imgSpotlight);
-            tvCategory = itemView.findViewById(R.id.tvSpotlightCategory);
-            tvName = itemView.findViewById(R.id.tvSpotlightName);
-            tvDesc = itemView.findViewById(R.id.tvSpotlightDesc);
-            tvPrice = itemView.findViewById(R.id.tvSpotlightPrice);
-            tvRating = itemView.findViewById(R.id.tvSpotlightRating);
+        ViewHolder(@NonNull View v) {
+            super(v);
+            imgProduct = v.findViewById(R.id.imgSpotlight);
+            tvCategory = v.findViewById(R.id.tvSpotlightCategory);
+            tvName = v.findViewById(R.id.tvSpotlightName);
+            tvDesc = v.findViewById(R.id.tvSpotlightDesc);
+            tvPrice = v.findViewById(R.id.tvSpotlightPrice);
+            tvRating = v.findViewById(R.id.tvSpotlightRating);
         }
     }
 }
