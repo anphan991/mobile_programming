@@ -124,3 +124,5 @@ app/src/main/
    .\gradlew.bat assembleDebug
    ```
 4. Cài đặt và khởi chạy ứng dụng trên thiết bị thật hoặc máy ảo Android (yêu cầu Android 7.0, API 24 trở lên).
+
+Lưu ý: ```distributionUrl=file\:///D:/Gradle/gradle-9.8.2-bin.zip``` nên phải đặt đúng binary của gradle tại vị trí đấy.
